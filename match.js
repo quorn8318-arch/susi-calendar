@@ -182,7 +182,11 @@ function scoreEvent(e, trackC, majorS, cat, field){
   }
   s += adj;
   // 예체능 일정(음악대학·체육특기 등)은 예체능 학과가 아니면 깎는다
-  if(/음악|미술|체육|예술|예체능|연기|무용|디자인/.test(T) && !ARTS.test(majorS) && trackHit<.9) s -= .4;
+  const ARTS_EV = /음악|미술|체육|예술|예체능|연기|무용|디자인/;
+  if(!ARTS.test(majorS + trackC)){
+    if(/\([^)]*(음악|미술|체육|예술|예체능|연기|무용|디자인)[^)]*\)/.test(e.t)) s -= .4;   // '일반전형(음악대학)'처럼 괄호 안에서 예체능으로 좁힌 일정
+    else if(ARTS_EV.test(T) && trackHit<.9) s -= .4;
+  }
   // '면접형' 일정인데 우리는 '서류형'·'추천형'처럼 유형이 다르면 깎는다
   const FORM = /(서류|면접|추천|활동|탐구|학업|교과)형/;
   const fT = (T.match(FORM)||[])[1], fK = (trackC.match(FORM)||[])[1];
