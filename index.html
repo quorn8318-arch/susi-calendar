@@ -1,0 +1,276 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>학급 수시 달력 만들기</title>
+<meta name="description" content="NEIS 반별제공현황 엑셀을 올리면 학급 수시 일정 달력 파일을 만들어 줍니다. 엑셀은 브라우저 안에서만 읽고 어디에도 보내지 않습니다.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+KR:wght@400;500;600;700&display=swap">
+<style>
+:root{
+  --bg:#f1ecfb; --surface:#ffffff; --sunk:#ebe5f7; --line:#d8cfee; --line-soft:#e8e2f5;
+  --fg:#1d1c1a; --muted:#64605a; --faint:#9a968e;
+  --accent:#2b4c7e; --accent-soft:#e3eaf5;
+  --ok:#1f7a3d; --ok-bg:#e3f3e7; --bad:#b3261e; --bad-bg:#fbe6e4; --wait:#8a5a00; --wait-bg:#fdf0d5;
+  --c-first:#6d4fd8; --c-iv:#e2611c; --c-es:#11806f; --c-pr:#c42b5b; --c-fn:#2a62c4;
+  --font:"IBM Plex Sans KR","Apple SD Gothic Neo","Malgun Gothic",system-ui,sans-serif;
+  color-scheme:light;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#17181b; --surface:#202226; --sunk:#1b1c20; --line:#34363c; --line-soft:#2b2d32;
+  --fg:#ecebe7; --muted:#a8a59e; --faint:#77746d; --accent:#8fb2ea; --accent-soft:#25303f;
+  --ok:#6fd38f; --ok-bg:#1d3324; --bad:#ff8a80; --bad-bg:#3a2020; --wait:#f0c060; --wait-bg:#3a3020;
+  --c-first:#a691ff; --c-iv:#ff9257; --c-es:#3fc2ab; --c-pr:#ff6f98; --c-fn:#6fa2ff; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#17181b; --surface:#202226; --sunk:#1b1c20; --line:#34363c; --line-soft:#2b2d32;
+  --fg:#ecebe7; --muted:#a8a59e; --faint:#77746d; --accent:#8fb2ea; --accent-soft:#25303f;
+  --ok:#6fd38f; --ok-bg:#1d3324; --bad:#ff8a80; --bad-bg:#3a2020; --wait:#f0c060; --wait-bg:#3a3020;
+  --c-first:#a691ff; --c-iv:#ff9257; --c-es:#3fc2ab; --c-pr:#ff6f98; --c-fn:#6fa2ff; color-scheme:dark}
+*{box-sizing:border-box}
+html,body{margin:0;padding:0}
+body{background:var(--bg);color:var(--fg);font-family:var(--font);font-size:15px;line-height:1.55}
+[hidden]{display:none!important}
+.wrap{max-width:1100px;margin:0 auto;padding:32px 16px 64px}
+h1{font-size:28px;margin:0 0 6px;letter-spacing:-.01em;text-wrap:balance}
+.lead{color:var(--muted);margin:0 0 20px;font-size:16px;max-width:62ch}
+.lock{display:flex;gap:12px;align-items:flex-start;background:var(--ok-bg);color:var(--fg);border:1px solid color-mix(in srgb,var(--ok) 30%,transparent);border-radius:12px;padding:12px 16px;margin-bottom:24px}
+.lock b{color:var(--ok)}
+.lock .ic{font-size:20px;line-height:1.2}
+.step{background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:22px 22px 24px;margin-bottom:18px}
+.step h2{margin:0 0 4px;font-size:19px;display:flex;align-items:center;gap:10px}
+.step h2 .no{display:inline-grid;place-items:center;width:28px;height:28px;border-radius:50%;background:var(--accent);color:var(--surface);font-size:14px;font-weight:700;flex:none}
+.step .hint{color:var(--muted);margin:0 0 14px;font-size:14px}
+.drop{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;border:2px dashed var(--line);border-radius:14px;padding:34px 16px;text-align:center;cursor:pointer;background:var(--sunk);transition:border-color .15s, background .15s}
+.drop:hover,.drop.over{border-color:var(--accent);background:var(--accent-soft)}
+.drop b{font-size:17px}
+.drop small{color:var(--muted)}
+.drop input{position:absolute;width:1px;height:1px;opacity:0}
+.file-ok{display:flex;flex-wrap:wrap;align-items:center;gap:10px;margin-top:12px;font-size:14px}
+.tag{display:inline-block;border-radius:6px;padding:1px 8px;font-size:12.5px;font-weight:600;background:var(--sunk);color:var(--muted)}
+.tag.ok{background:var(--ok-bg);color:var(--ok)}.tag.warn{background:var(--wait-bg);color:var(--wait)}.tag.bad{background:var(--bad-bg);color:var(--bad)}
+.err{background:var(--bad-bg);color:var(--bad);border-radius:10px;padding:10px 14px;margin-top:12px;font-size:14px}
+.row{display:flex;flex-wrap:wrap;gap:14px 20px;align-items:flex-end}
+.field{display:flex;flex-direction:column;gap:5px;font-size:14px;color:var(--muted);min-width:0}
+.field.grow{flex:1 1 360px}
+input[type=text],select{font:inherit;color:var(--fg);background:var(--surface);border:1px solid var(--line);border-radius:9px;padding:9px 12px;min-width:0}
+input[type=text]{width:100%}
+.btn{font:inherit;border:1px solid var(--line);background:var(--surface);color:var(--fg);border-radius:10px;padding:10px 18px;cursor:pointer;font-size:15px}
+.btn:hover{border-color:var(--faint)}
+.btn.primary{background:var(--accent);border-color:var(--accent);color:var(--surface);font-weight:700}
+.btn.big{padding:13px 24px;font-size:16px}
+.btn:disabled{opacity:.5;cursor:not-allowed}
+.btn:focus-visible,input:focus-visible,select:focus-visible,.drop:focus-within{outline:2px solid var(--accent);outline-offset:2px}
+.stats{display:flex;flex-wrap:wrap;gap:10px;margin:4px 0 14px}
+.stat{background:var(--sunk);border-radius:10px;padding:10px 16px;min-width:120px}
+.stat b{display:block;font-size:22px;font-variant-numeric:tabular-nums}
+.stat span{color:var(--muted);font-size:13px}
+.stat.warn b{color:var(--wait)}.stat.bad b{color:var(--bad)}
+.note{font-size:14px;color:var(--muted);margin:8px 0 0}
+.note b{color:var(--fg)}
+.miss{font-size:13.5px;background:var(--wait-bg);color:var(--wait);border-radius:10px;padding:10px 14px;margin:10px 0 0}
+.actions{display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin-top:16px}
+.preview{margin-top:18px;border:1px solid var(--line);border-radius:14px;overflow:hidden;background:var(--sunk)}
+.preview .bar{display:flex;justify-content:space-between;gap:10px;align-items:center;padding:8px 14px;font-size:13px;color:var(--muted);border-bottom:1px solid var(--line);background:var(--surface)}
+.preview iframe{display:block;width:100%;height:min(78vh,900px);border:0;background:#fff}
+details{margin-top:6px}
+details summary{cursor:pointer;color:var(--accent);font-weight:600;font-size:14px}
+details .inner{padding:12px 0 0;font-size:14px;color:var(--muted)}
+.how{margin:0;padding-left:20px}
+.how li{margin:4px 0}
+.legend{display:flex;flex-wrap:wrap;gap:6px 14px;font-size:13px;color:var(--muted);margin-top:6px}
+.legend i{display:inline-block;width:10px;height:10px;border-radius:3px;margin-right:5px;vertical-align:-1px}
+footer{color:var(--faint);font-size:13px;margin-top:28px;line-height:1.7}
+@media (max-width:640px){h1{font-size:23px}.step{padding:18px 16px 20px}.preview iframe{height:70vh}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>학급 수시 달력 만들기</h1>
+  <p class="lead">NEIS에서 내려받은 학급의 수시 지원 현황 엑셀을 올리면, 학생별 1차 발표·면접·논술·실기·최종 발표 날짜를 대학 일정 목록에서 찾아 학급 수시 달력 파일을 만들어 드립니다.</p>
+
+  <div class="lock"><span class="ic" aria-hidden="true">🔒</span><div><b>엑셀 파일은 이 컴퓨터 밖으로 나가지 않습니다.</b> 이 페이지는 올린 파일을 브라우저 안에서만 읽고 달력을 만들며, 학생 정보를 서버나 다른 곳으로 보내거나 저장하지 않습니다. 만들어진 달력 파일에는 학생 개인정보가 들어 있으니 선생님 컴퓨터에만 보관해 주세요.</div></div>
+
+  <section class="step" id="step1">
+    <h2><span class="no">1</span>학급 지원 현황 엑셀 올리기</h2>
+    <p class="hint">NEIS 「반별제공현황진행상황」 엑셀(반·번호·성명·대학·평가단위명·수험번호가 있는 파일)을 올려 주세요. 「수시 지원 상황 및 결과」 형식 엑셀도 읽을 수 있습니다.</p>
+    <label class="drop" id="drop">
+      <input type="file" id="classFile" accept=".xlsx,.xls,.csv">
+      <b>여기에 엑셀 파일을 끌어다 놓거나 눌러서 고르세요</b>
+      <small>.xlsx · .xls · .csv</small>
+    </label>
+    <div class="file-ok" id="classInfo" hidden></div>
+    <div class="err" id="classErr" hidden></div>
+    <details>
+      <summary>어떤 파일을 올리나요?</summary>
+      <div class="inner"><ul class="how">
+        <li>NEIS에서 학급의 <b>대입전형자료 온라인 제공 현황(반별제공현황진행상황)</b>을 엑셀로 저장한 파일을 그대로 올리면 됩니다.</li>
+        <li>머리글에 <b>반, 번호, 성명, 대학, 모집시기, 평가단위명, 수험번호</b>가 있으면 됩니다. 모집시기가 정시인 줄은 빠집니다.</li>
+        <li>한 파일에 여러 반이 섞여 있어도 되지만, 학급별로 하나씩 만드는 것을 권합니다.</li>
+      </ul></div>
+    </details>
+  </section>
+
+  <section class="step" id="step2" hidden>
+    <h2><span class="no">2</span>달력 이름 확인</h2>
+    <p class="hint">엑셀에서 읽은 학년·반으로 이름을 붙였습니다. 필요하면 고쳐 주세요.</p>
+    <div class="row">
+      <label class="field grow">달력 제목<input type="text" id="titleIn" maxlength="60"></label>
+      <label class="field">배경색<select id="bgIn">
+        <option value="lav">라벤더</option><option value="mint">민트</option><option value="peach">피치</option><option value="sky">하늘</option><option value="pink">벚꽃</option><option value="base">기본</option>
+      </select></label>
+    </div>
+  </section>
+
+  <section class="step" id="step3" hidden>
+    <h2><span class="no">3</span>달력 파일 내려받기</h2>
+    <div class="stats" id="stats"></div>
+    <div id="missBox"></div>
+    <p class="note"><b>꼭 확인해 주세요.</b> 날짜는 평가단위명(전형·학과 이름)을 대학 일정 목록과 맞춰 자동으로 찾은 것입니다. 수능최저 적용 여부·계열·캠퍼스에 따라 달라지는 일정은 <span class="tag warn">미정</span>으로 표시되니, 달력에서 일정을 눌러 후보 중에 고르거나 날짜를 직접 넣어 확정하세요.</p>
+    <div class="actions">
+      <button class="btn primary big" id="dlBtn">달력 파일(HTML) 내려받기</button>
+      <span class="note" style="margin:0">내려받은 파일을 두 번 눌러 열면 인터넷 창에서 달력이 열립니다.</span>
+    </div>
+    <div class="preview">
+      <div class="bar"><span>미리보기 — 여기서 바꾼 내용은 저장되지 않습니다</span><span id="pvName"></span></div>
+      <iframe id="pv" title="수시 달력 미리보기" sandbox="allow-scripts allow-modals"></iframe>
+    </div>
+  </section>
+
+  <section class="step">
+    <h2><span class="no" style="background:var(--muted)">?</span>사용 안내</h2>
+    <ul class="how" style="color:var(--muted);font-size:14px">
+      <li><b style="color:var(--fg)">저장:</b> 달력 파일에서 날짜를 확정하거나 합격 결과를 넣으면 그 컴퓨터의 브라우저에 자동 저장됩니다. 다른 컴퓨터로 옮기거나 보관하려면 달력의 <b style="color:var(--fg)">‘저장 파일 내려받기’</b>로 새 파일을 받아 그 파일을 쓰세요.</li>
+      <li><b style="color:var(--fg)">인쇄:</b> 달력의 ‘인쇄’를 누르면 A4 가로 인쇄용 파일이 내려받아집니다.</li>
+      <li><b style="color:var(--fg)">엑셀:</b> ‘지원결과’ 탭에서 학생별 지원·결과를 엑셀로 내려받을 수 있습니다.</li>
+      <li><b style="color:var(--fg)">전문대:</b> 학교별 수시 일정표의 합격자 발표일을 넣고, 면접·실기는 학과마다 달라 기간만 후보로 보여 줍니다.</li>
+    </ul>
+    <div class="legend"><span><i style="background:var(--c-first)"></i>1차발표</span><span><i style="background:var(--c-iv)"></i>면접</span><span><i style="background:var(--c-es)"></i>논술</span><span><i style="background:var(--c-pr)"></i>실기</span><span><i style="background:var(--c-fn)"></i>최종발표</span></div>
+    <details>
+      <summary>대학 일정 목록 바꾸기</summary>
+      <div class="inner">
+        <p style="margin:0 0 8px">기본으로 <b id="schedName" style="color:var(--fg)">2027학년도 수시 대입 일정 목록(4년제·전문대)</b>을 씁니다. 새 학년도 목록이 있으면 같은 형식(시트 「일정목록」: 날짜·요일·구분·대학·전형·시각·비고, 시트 「전형일정」: 전문대 일정표)의 엑셀을 올려 바꿀 수 있습니다.</p>
+        <input type="file" id="schedFile" accept=".xlsx,.xls">
+        <span id="schedInfo" class="tag" style="margin-left:6px"></span>
+      </div>
+    </details>
+  </section>
+
+  <footer>
+    대학 일정은 각 대학 모집요강·입학처 공지를 모아 정리한 목록에서 가져옵니다. 일정은 바뀔 수 있으니 수험표와 입학처 공지로 최종 확인해 주세요.<br>
+    이 페이지는 학생 정보를 수집하지 않습니다. 파일 읽기와 달력 만들기는 모두 이 브라우저 안에서 이루어집니다.
+  </footer>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<script src="match.js"></script>
+<script>
+const $ = id => document.getElementById(id);
+const pad = n => String(n).padStart(2,'0');
+const today = () => { const d=new Date(); return `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`; };
+let SCHED = null, SCHED_NAME = '2027학년도 수시 대입 일정 목록(4년제·전문대)', TEMPLATE = '', RESULT = null, FILE_ID = '';
+const ready = (async()=>{
+  const [t, s] = await Promise.all([
+    fetch('calendar-template.html', {cache:'no-cache'}).then(r=>{ if(!r.ok) throw new Error('template'); return r.text(); }),
+    fetch('schedule-2027.xlsx', {cache:'no-cache'}).then(r=>{ if(!r.ok) throw new Error('schedule'); return r.arrayBuffer(); })
+  ]);
+  TEMPLATE = t;
+  SCHED = SusiMatch.loadSchedule(XLSX.read(s, {type:'array'}));
+  $('schedInfo').textContent = `일정 ${SCHED.ev.length.toLocaleString()}건 · 대학 ${SCHED.keys4.size + SCHED.keysJ.size}곳`;
+})().catch(err=>{ showErr('기본 대학 일정 목록을 불러오지 못했습니다. 인터넷 연결을 확인하고 새로고침해 주세요.'); throw err; });
+
+function showErr(msg){ const e=$('classErr'); e.textContent=msg; e.hidden=!msg; }
+async function readBook(file){
+  const buf = await file.arrayBuffer();
+  return XLSX.read(buf, {type:'array'});
+}
+
+/* ---------- 학급 파일 ---------- */
+async function handleClassFile(file){
+  showErr('');
+  if(!file) return;
+  try{
+    await ready;
+    const wb = await readBook(file);
+    RESULT = SusiMatch.buildApps(wb, SCHED);
+    if(!RESULT.apps.length) throw new Error('엑셀에서 수시 지원 내역을 찾지 못했습니다. 모집시기가 「수시」인 줄이 있는지 확인해 주세요.');
+    FILE_ID = (crypto.randomUUID ? crypto.randomUUID() : String(Math.random()).slice(2)).slice(0,12);
+    const stuN = new Set(RESULT.apps.map(a=>a.sk)).size;
+    $('classInfo').innerHTML = `<span class="tag ok">읽기 완료</span> <span>${escapeHtml(file.name)}</span> <span class="tag">${RESULT.fmt==='neis'?'NEIS 반별제공현황':'수시 지원 상황 및 결과'}</span> <span class="tag">학생 ${stuN}명 · 지원 ${RESULT.apps.length}건</span>`;
+    $('classInfo').hidden = false;
+    const Y = SCHED.Y + 1;
+    const g = RESULT.grade || '3', c = RESULT.classes.length===1 ? RESULT.classes[0] : '';
+    $('titleIn').value = `${Y}학년도 ${g}학년${c?' '+c+'반':''} 수시 일정 달력`;
+    $('step2').hidden = false; $('step3').hidden = false;
+    renderSummary(); renderPreview();
+    $('step3').scrollIntoView({behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth', block:'start'});
+  }catch(err){
+    console.error(err);
+    RESULT = null; $('step2').hidden = true; $('step3').hidden = true; $('classInfo').hidden = true;
+    showErr(err && err.message && !/template|schedule/.test(err.message) ? err.message : '파일을 읽지 못했습니다. 엑셀 파일(.xlsx)이 맞는지 확인해 주세요.');
+  }
+}
+function escapeHtml(s){ return String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+function renderSummary(){
+  const A = RESULT.apps;
+  const has = a => a.final || a.exam || a.first;
+  const unc = A.filter(a=>[a.first,a.exam,a.final].some(s=>s&&s.unc)).length;
+  const none = A.filter(a=>!has(a)).length;
+  const exams = A.filter(a=>a.exam).length;
+  $('stats').innerHTML = [
+    [new Set(A.map(a=>a.sk)).size,'학생',''],[A.length,'지원',''],[A.filter(a=>a.final).length,'최종 발표일 찾음',''],[exams,'면접·논술·실기 찾음',''],
+    [unc,'확인 필요(미정)', unc?'warn':''],[none,'날짜 못 찾음', none?'bad':'']
+  ].map(([n,l,c])=>`<div class="stat ${c}"><b>${n}</b><span>${l}</span></div>`).join('');
+  const miss = RESULT.stats.univMiss;
+  $('missBox').innerHTML = miss.length ? `<div class="miss">대학 일정 목록에 없는 대학: <b>${miss.map(escapeHtml).join(', ')}</b> — 달력에서 해당 지원을 눌러 날짜를 직접 넣어 주세요.</div>` : '';
+}
+function buildHtml(preview){
+  const title = $('titleIn').value.trim() || '수시 일정 달력';
+  const short = (title.match(/\d학년\s*\d+반/)||[title.replace(/\d{4}학년도\s*/,'').replace(/\s*수시.*$/,'')])[0].replace(/\s/g,'') + '_수시달력';
+  const data = { meta:{ title, short, made:today(), fileId:FILE_ID, bg:$('bgIn').value, schedName:SCHED_NAME, preview:!!preview, fmt:RESULT.fmt },
+    apps:RESULT.apps, refs:RESULT.refs };
+  const json = JSON.stringify(data).replace(/</g,'\\u003c');
+  return { html: TEMPLATE.replace('__SUSI_DATA__', ()=>json), short };
+}
+let pvTimer = 0;
+function renderPreview(){
+  clearTimeout(pvTimer);
+  pvTimer = setTimeout(()=>{ const {html, short} = buildHtml(true); $('pv').srcdoc = html; $('pvName').textContent = short + '.html'; }, 150);
+}
+$('titleIn').addEventListener('input', ()=>RESULT && renderPreview());
+$('bgIn').addEventListener('change', ()=>RESULT && renderPreview());
+$('dlBtn').addEventListener('click', ()=>{
+  if(!RESULT) return;
+  const {html, short} = buildHtml(false);
+  const url = URL.createObjectURL(new Blob([html], {type:'text/html;charset=utf-8'}));
+  const a = document.createElement('a'); a.href = url; a.download = `${short}_${today().replace(/-/g,'')}.html`;
+  document.body.appendChild(a); a.click(); setTimeout(()=>{ URL.revokeObjectURL(url); a.remove(); }, 2000);
+});
+
+$('classFile').addEventListener('change', e=>{ handleClassFile(e.target.files[0]); e.target.value=''; });
+const drop = $('drop');
+['dragenter','dragover'].forEach(t=>drop.addEventListener(t, e=>{ e.preventDefault(); drop.classList.add('over'); }));
+['dragleave','drop'].forEach(t=>drop.addEventListener(t, e=>{ e.preventDefault(); drop.classList.remove('over'); }));
+drop.addEventListener('drop', e=>{ const f=e.dataTransfer.files[0]; if(f) handleClassFile(f); });
+window.addEventListener('dragover', e=>e.preventDefault());
+window.addEventListener('drop', e=>e.preventDefault());
+
+/* ---------- 대학 일정 목록 바꾸기 ---------- */
+$('schedFile').addEventListener('change', async e=>{
+  const f = e.target.files[0]; if(!f) return;
+  try{
+    const S = SusiMatch.loadSchedule(await readBook(f));
+    if(!S.ev.length) throw new Error('empty');
+    SCHED = S; SCHED_NAME = f.name.replace(/\.[^.]+$/,'');
+    $('schedName').textContent = SCHED_NAME;
+    $('schedInfo').className = 'tag ok';
+    $('schedInfo').textContent = `바꿨습니다 · 일정 ${S.ev.length.toLocaleString()}건 · 대학 ${S.keys4.size + S.keysJ.size}곳`;
+    if(RESULT) $('classInfo').insertAdjacentHTML('beforeend',' <span class="tag warn">일정 목록이 바뀌었으니 학급 파일을 다시 올려 주세요</span>');
+  }catch(err){
+    $('schedInfo').className = 'tag bad';
+    $('schedInfo').textContent = '이 파일에서 일정 목록을 읽지 못했습니다';
+  }
+});
+</script>
+</body>
+</html>
