@@ -79,7 +79,7 @@ select,input[type=text],input[type=search],input[type=date],input[type=number],t
 a.btn{display:inline-block;text-decoration:none;color:var(--accent);font-weight:600}
 .eno{display:inline-flex;align-items:center;gap:6px;border:1px solid var(--line);background:var(--sunk);border-radius:8px;padding:5px 10px;font-size:13px;color:var(--muted);white-space:nowrap}
 .eno b{color:var(--fg);font-variant-numeric:tabular-nums;letter-spacing:.02em;user-select:all}
-.dayitem .eno{margin-left:6px;padding:1px 8px;font-size:12.5px;vertical-align:1px}
+.dayitem .eno,.app .u .eno{margin-left:6px;padding:1px 8px;font-size:12.5px;vertical-align:1px;font-weight:400}
 
 /* calendar */
 .month{background:var(--surface);border:1px solid var(--line);border-radius:14px;margin-bottom:28px;overflow:hidden}
@@ -256,7 +256,7 @@ textarea{width:100%;min-height:56px;resize:vertical}
   </section>
 
   <section id="pane-stu" hidden>
-    <div class="toolbar"><input type="search" id="stuQ" placeholder="이름·대학·학과 검색" style="min-width:min(320px,100%)"></div>
+    <div class="toolbar"><input type="search" id="stuQ" placeholder="이름·대학·학과·수험번호 검색" style="min-width:min(320px,100%)"></div>
     <div class="stuwrap">
       <div class="stulist" id="stulist"></div>
       <div id="stucard"></div>
@@ -343,7 +343,7 @@ const IPSI = {
   '신구대':'https://enter.shingu.ac.kr/index.do','신라대':'https://ipsi.silla.ac.kr/','신성대':'https://ipsi.shinsung.ac.kr/',
   '신안산대':'https://apply.sau.ac.kr/','신한대':'https://ipsi.shinhan.ac.kr','아신대':'https://admission.acts.ac.kr/',
   '아주대':'https://www.iajou.ac.kr','아주자동차대':'https://ipsi.motor.ac.kr/','안동과학대':'https://ipsi.asc.ac.kr/',
-  '안산대':'https://iphak.ansan.ac.kr','안양대':'https://enter.anyang.ac.kr/','여주대':'https://ipsi.yit.ac.kr/',
+  '안산대':'https://iphak.ansan.ac.kr','안양대':'https://enter.anyang.ac.kr/intro','여주대':'https://ipsi.yit.ac.kr/',
   '연성대':'https://ipsi.yeonsung.ac.kr/','연세대':'https://admission.yonsei.ac.kr','연세대(미래)':'https://admission.yonsei.ac.kr/',
   '연암공과대':'https://enter.yc.ac.kr/','연암대':'https://iphak.yonam.ac.kr/','영남대':'https://enter.yu.ac.kr/',
   '영남신학대':'https://entra.ytus.ac.kr/','영남이공대':'https://exam.ync.ac.kr/exam/Main.do','영산대':'https://ipsi.ysu.ac.kr/',
@@ -847,7 +847,7 @@ document.getElementById('dlXlsx').addEventListener('click',()=>{
 /* ---------- 학생 검색 ---------- */
 function renderStu(){
   const q=state.stuQ.trim();
-  const match = s => !q || s.name.includes(q) || APPS.some(a=>a.sk===s.sid && (a.univ.includes(q)||(a.major||'').includes(q)));
+  const match = s => !q || s.name.includes(q) || APPS.some(a=>a.sk===s.sid && (a.univ.includes(q)||(a.major||'').includes(q)||(a.eno||'').includes(q)));
   const list=students.filter(match);
   if(!state.stuPick || !list.find(s=>s.sid===state.stuPick)) state.stuPick = list[0]?list[0].sid:'';
   document.getElementById('stulist').innerHTML = list.map(s=>{
@@ -855,7 +855,7 @@ function renderStu(){
     return `<button class="stubtn" data-sid="${esc(s.sid)}" aria-current="${s.sid===state.stuPick}"><span>${s.no<99?s.no+'번 ':''}${esc(s.name)}</span><small>${apps.length}곳${ok?` · 합격 ${ok}`:''}</small></button>`;}).join('') || '<p class="empty-note">검색 결과가 없습니다.</p>';
   const s=students.find(x=>x.sid===state.stuPick);
   if(!s){ document.getElementById('stucard').innerHTML=''; return; }
-  const apps=APPS.filter(a=>a.sk===s.sid && (!q || s.name.includes(q) || a.univ.includes(q) || (a.major||'').includes(q)));
+  const apps=APPS.filter(a=>a.sk===s.sid && (!q || s.name.includes(q) || a.univ.includes(q) || (a.major||'').includes(q) || (a.eno||'').includes(q)));
   const nextOf = a => { const e=eff(a); return [e.first,e.exam,e.final].filter(Boolean).map(x=>x.date).filter(d=>d>=TODAY).sort()[0]||'9999'; };
   apps.sort((x,y)=>nextOf(x)<nextOf(y)?-1:1);
   const upcoming = allEvents().filter(ev=>ev.a.sk===s.sid && ev.date>=TODAY)[0];
@@ -865,7 +865,7 @@ function renderStu(){
       const pill=(k,s2)=>!s2?'':`<span class="pill t-${k}${s2.unc?' unc':''}${s2.date<TODAY?' past':''}"><span class="k">${TMAP[k].tag}</span>${fmtD(s2.date)}${s2.end?'~'+fmtD(s2.end):''}${s2.unc?' 미정':''}</span>`;
       const jcHint = a.jc && !e.exam && REFS[a.uk] && REFS[a.uk].jc && (REFS[a.uk].jc.iv||REFS[a.uk].jc.pr) ? '<span class="pill" style="border-style:dashed">면접·실기 여부 확인</span>' : '';
       const noDate = !e.first && !e.exam && !e.final ? '<span class="pill" style="border-style:dashed">날짜 직접 입력 필요</span>' : '';
-      return `<div class="app" data-id="${a.id}"><div><div class="u">${esc(a.univ)}</div><div class="m">${esc(a.major||'')} · ${esc(a.track||'')}</div></div>
+      return `<div class="app" data-id="${a.id}"><div><div class="u">${esc(a.univ)}${a.eno?`<span class="eno">수험번호 <b>${esc(a.eno)}</b></span>`:''}</div><div class="m">${esc(a.major||'')} · ${esc(a.track||'')}</div></div>
         <div class="tl">${pill('first',e.first)}${e.exam?pill(e.exam.type,e.exam):''}${pill('final',e.final)}${jcHint}${noDate}</div>
         <div class="res-cell">${resFlags(a,'first')}${resFlags(a,'final')||'<span class="flag" style="background:var(--sunk);color:var(--muted)">발표 대기</span>'}</div></div>`;}).join('')}</div></div>`;
 }
