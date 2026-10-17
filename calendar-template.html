@@ -633,7 +633,9 @@ function renderAppDlg(){
       ${a.csat?`<dt>수능최저</dt><dd>${esc(a.csat)}</dd>`:''}
       ${a.quota?`<dt>모집인원</dt><dd>${esc(a.quota)}명</dd>`:''}
     </dl></div>
-    ${IPSI[a.uk]?`<div class="sec"><h4>입학처 홈페이지</h4><a class="btn" href="${esc(IPSI[a.uk])}" target="_blank" rel="noopener noreferrer">${esc(a.univ)} 입학처 열기 ↗</a></div>`:''}
+    <div class="sec"><h4>입학처 홈페이지</h4>${IPSI[a.uk]
+      ? `<a class="btn" href="${esc(IPSI[a.uk])}" target="_blank" rel="noopener noreferrer">${esc(a.univ)} 입학처 열기 ↗</a>`
+      : `<a class="btn" href="https://search.naver.com/search.naver?query=${encodeURIComponent(a.univ+' 입학처')}" target="_blank" rel="noopener noreferrer">네이버에서 ${esc(a.univ)} 입학처 검색 ↗</a>`}</div>
     <div class="sec"><h4>일정 확정 — 날짜를 고르거나 ‘확정’을 누른 뒤 저장하세요</h4>
       ${hasFirst?schedRow('first','1단계 발표','t-first',a.first,e.first):''}
       ${schedRow('exam','전형일','t-'+((e.exam&&e.exam.type)||'면접'),a.exam,e.exam)}
