@@ -283,27 +283,105 @@ document.getElementById('title').textContent = META.title || '수시 일정 달�
 document.getElementById('foot').textContent = `만든 날 ${META.made||''}${META.schedName?' · 대학 일정: '+META.schedName:''} · 날짜는 대학 일정 목록에서 자동으로 찾은 것이니 수험표·입학처 공지로 꼭 확인하세요.`;
 // 대학별 입학처 홈페이지 (일정 목록의 대학 이름 기준)
 const IPSI = {
-  '가천대':'https://admission.gachon.ac.kr','가톨릭대':'https://ipsi.catholic.ac.kr','강동대':'https://www.gangdong.ac.kr/ipsi/main/index.do',
+  'DGIST':'https://www.dgist.ac.kr/adm/','GIST':'https://admission.gist.ac.kr/','KAIST':'https://admission.kaist.ac.kr/',
+  'KENTECH':'https://admission.kentech.ac.kr/','POSTECH':'https://www.postech.ac.kr/kor/admission/admission_info.do','UNIST':'https://www.unist.ac.kr/unist/admissions/admissions.do',
+  '가야대':'https://ipsi.kaya.ac.kr/','가천대':'https://admission.gachon.ac.kr','가톨릭관동대':'https://ipsi.cku.ac.kr/',
+  '가톨릭꽃동네대':'https://ipsi.kkot.ac.kr/','가톨릭대':'https://ipsi.catholic.ac.kr','가톨릭상지대':'https://ipsi.csj.ac.kr/',
+  '감리교신학대':'https://ipsi.mtu.ac.kr/','강남대':'https://admission.kangnam.ac.kr/','강동대':'https://www.gangdong.ac.kr/ipsi/main/index.do',
   '강서대':'https://entrance.gangseo.ac.kr','강원대(강릉원주)':'https://admission.kangwon.ac.kr','강원대(춘천삼척)':'https://admission.kangwon.ac.kr',
-  '건국대':'https://enter.konkuk.ac.kr','국립경국대':'https://ipsi.gknu.ac.kr','경기과학기술대':'https://www.gtec.ac.kr/ipsi/index.do','경기대':'https://enter.kyonggi.ac.kr',
-  '경민대':'https://iphak.kyungmin.ac.kr','경복대':'https://kbu.ac.kr/efms/Main.do','경북대':'https://ipsi.knu.ac.kr','경희대':'https://iphak.khu.ac.kr',
-  '계명대':'http://www.gokmu.ac.kr','고려대':'https://oku.korea.ac.kr','고려대(세종)':'https://oku.korea.ac.kr/sejong/index.do','공주대':'https://ipsi.kongju.ac.kr',
-  '광운대':'https://iphak.kw.ac.kr','국민대':'https://admission.kookmin.ac.kr','극동대':'https://ipsi.kdu.ac.kr',
-  '단국대':'https://ipsi.dankook.ac.kr','대경대':'https://www.dkuway.com','대림대':'https://ent.daelim.ac.kr','대원대':'https://www.daewon.ac.kr/mbs/ipsi/',
-  '대진대':'https://admission.daejin.ac.kr','동국대(WISE)':'https://ipsi.dongguk.ac.kr','동서울대':'https://enter.du.ac.kr','동신대':'https://ipsi.dsu.ac.kr',
-  '동양미래대':'https://ipsi.dongyang.ac.kr','두원공과대':'https://www.doowon.ac.kr/kr/690/subview.do','명지대':'https://iphak.mju.ac.kr','명지전문대':'https://ipsi.mjc.ac.kr',
-  '삼육대':'https://ipsi.syu.ac.kr','삼육보건대':'https://exam.shu.ac.kr','상명대':'https://admission.smu.ac.kr','서강대':'https://admission.sogang.ac.kr',
-  '서경대':'https://go.skuniv.ac.kr','서울과기대':'https://admission.seoultech.ac.kr','서울대':'https://admission.snu.ac.kr','서울신학대':'https://ipsi.stu.ac.kr',
-  '서일대':'https://www.seoil.ac.kr/ipsi/index.do','서정대':'https://ipsi.seojeong.ac.kr','성결대':'https://ipsi.sungkyul.ac.kr','세종대':'https://ipsi.sejong.ac.kr',
-  '수원과학대':'https://ipsi.ssc.ac.kr','수원대':'https://ipsi.suwon.ac.kr','숭실대':'https://iphak.ssu.ac.kr','신구대':'https://enter.shingu.ac.kr/index.do',
-  '신한대':'https://ipsi.shinhan.ac.kr','아주대':'https://www.iajou.ac.kr','안산대':'https://iphak.ansan.ac.kr','연세대':'https://admission.yonsei.ac.kr',
-  '오산대':'https://iphak.osan.ac.kr','우석대':'https://enter.woosuk.ac.kr/main/','유한대':'https://sky.yuhan.ac.kr','을지대':'https://admission.eulji.ac.kr',
-  '인덕대':'https://ipsi.induk.ac.kr','인천대':'https://admission.inu.ac.kr','인하대':'https://admission.inha.ac.kr','재능대':'https://ipsi.jeiu.ac.kr',
-  '전북대':'https://enter.jbnu.ac.kr','조선대':'https://ibhak.chosun.ac.kr','중앙대':'https://admission.cau.ac.kr','한경국립대':'https://ipsi.hknu.ac.kr',
-  '한국공학대':'https://iphak.tukorea.ac.kr/intro.html','한국교통대':'https://www.ut.ac.kr/ipsi.do','한국기술교대':'https://www.koreatech.ac.kr/ipsi/','한국외대':'https://adms.hufs.ac.kr',
-  '한국항공대':'https://ibhak.kau.ac.kr','한림성심대':'https://ipsi.hsc.ac.kr','한밭대':'https://www.hanbat.ac.kr/admission/','한서대':'https://helper.hanseo.ac.kr',
-  '한성대':'https://enter.hansung.ac.kr','한신대':'https://ent.hs.ac.kr','한양대':'https://go.hanyang.ac.kr','홍익대':'https://www.hongik.ac.kr/kr/admission/undergraduate-admission.do'
+  '강원도립대':'https://ipsi.gw.ac.kr/','거제대':'https://enter.koje.ac.kr/','건국대':'https://enter.konkuk.ac.kr',
+  '건국대(글로컬)':'https://enter.kku.ac.kr/','건양대':'https://ipsi.konyang.ac.kr/','경기과학기술대':'https://www.gtec.ac.kr/ipsi/index.do',
+  '경기대':'https://enter.kyonggi.ac.kr','경남대':'https://ipsi.kyungnam.ac.kr/','경남정보대':'https://iphak.kit.ac.kr/',
+  '경민대':'https://iphak.kyungmin.ac.kr','경복대':'https://kbu.ac.kr/efms/Main.do','경북과학대':'https://ipsi.kbsu.ac.kr/',
+  '경북대':'https://ipsi.knu.ac.kr','경북전문대':'https://ipsi.kbc.ac.kr/','경성대':'https://ipsi.ks.ac.kr/',
+  '경운대':'https://ipsi.ikw.ac.kr/','경인교대':'https://ipsi.ginue.ac.kr/','경인여대':'https://start.kiwu.ac.kr/new_start/kiwu/index.jsp',
+  '경일대':'https://www.kiu.ac.kr/admission/','경희대':'https://iphak.khu.ac.kr','계명대':'http://www.gokmu.ac.kr',
+  '계명문화대':'https://admission.kmcu.ac.kr/','계원예술대':'https://ipsi.kaywon.ac.kr/','고려대':'https://oku.korea.ac.kr',
+  '고려대(세종)':'https://oku.korea.ac.kr/sejong/index.do','고신대':'https://www.kosin.ac.kr/dream/?ref=1','공주대':'https://ipsi.kongju.ac.kr',
+  '광운대':'https://iphak.kw.ac.kr','광주가톨릭대':'https://admission.gjc.ac.kr/','광주대':'https://iphak.gwangju.ac.kr/',
+  '광주보건대':'https://ipsi.ghu.ac.kr/','구미대':'https://www.gumi.ac.kr/admission/','국립경국대':'https://ipsi.gknu.ac.kr',
+  '국립목포대(미확정)':'https://ipsi.mokpo.ac.kr/','국립창원대(거창)':'https://ipsi.changwon.ac.kr/','국립창원대(남해)':'https://ipsi.changwon.ac.kr/',
+  '국립창원대(남해전형기간자율화)':'https://ipsi.changwon.ac.kr/','국립창원대(창원)':'https://ipsi.changwon.ac.kr/','국민대':'https://admission.kookmin.ac.kr',
+  '국제대':'https://ipsi.kookje.ac.kr/','군산간호대':'https://ipsi.kcn.ac.kr/','군산대':'https://iphak.kunsan.ac.kr/',
+  '군장대':'https://enter.kunjang.ac.kr/','극동대':'https://ipsi.kdu.ac.kr','금강대':'https://www.ggu.ac.kr/matriculation',
+  '금오공대':'https://iphak.kumoh.ac.kr/','기독간호대':'https://www.ccn.ac.kr/Admission/','김천대':'https://ibhak.gimcheon.ac.kr/',
+  '김해대':'https://ipsi.gimhae.ac.kr/','나사렛대':'https://ipsi.kornu.ac.kr/','나주대':'https://ipsi.naju.ac.kr/',
+  '남부대':'https://ipsi.nambu.ac.kr/','남서울대':'https://www.namseoul.net/mainIntro/intro.do','단국대':'https://ipsi.dankook.ac.kr',
+  '대경대':'https://www.dkuway.com','대구가톨릭대':'https://www.cu.ac.kr/ipsi/','대구공업대':'https://entr.ttc.ac.kr/contents/main/main.do',
+  '대구과학대':'https://ipsi.tsu.ac.kr/','대구교대':'https://admission.dnue.ac.kr/','대구대':'http://ipsi.daegu.ac.kr/',
+  '대구보건대':'https://www.dhc.ac.kr/iphak/','대구예대':'https://ipsi.dgau.ac.kr/','대구한의대':'http://ipsi.dhu.ac.kr/',
+  '대덕대':'https://ipsi.ddu.ac.kr/','대동대':'https://ipsi.daedong.ac.kr/','대림대':'https://ent.daelim.ac.kr',
+  '대원대':'https://www.daewon.ac.kr/mbs/ipsi/','대전가톨릭대':'https://www.dcatholic.ac.kr/bbs/board.php?bo_table=admissions','대전과학기술대':'https://ipsi.dst.ac.kr/',
+  '대전대':'https://ipsi.dju.ac.kr/','대전보건대':'https://ipsi.hit.ac.kr/','대진대':'https://admission.daejin.ac.kr',
+  '덕성여대':'https://enter.duksung.ac.kr/','동강대':'https://ipsi.dkc.ac.kr/','동국대':'https://ipsi.dongguk.edu/',
+  '동국대(WISE)':'https://ipsi.dongguk.ac.kr','동남보건대':'https://ipsi.dongnam.ac.kr/','동덕여대':'https://ipsi.dongduk.ac.kr/',
+  '동명대':'https://iphak.tu.ac.kr/','동서대':'https://ipsi.dongseo.ac.kr/','동서울대':'https://enter.du.ac.kr',
+  '동신대':'https://ipsi.dsu.ac.kr','동아대':'https://ent.donga.ac.kr/','동아방송예술대':'https://ipsi.dima.ac.kr/',
+  '동양대':'https://ipsi.dyu.ac.kr/','동양미래대':'https://ipsi.dongyang.ac.kr','동원대':'https://ipsi.tw.ac.kr/',
+  '동의과학대':'https://ipsi.dit.ac.kr/','동의대':'https://ipsi.deu.ac.kr/','두원공과대':'https://www.doowon.ac.kr/kr/690/subview.do',
+  '루터대':'https://admission.ltu.ac.kr/','마산대':'https://www.masan.ac.kr/info/Main.do','명지대':'https://iphak.mju.ac.kr',
+  '명지전문대':'https://ipsi.mjc.ac.kr','목원대':'http://enter.mokwon.ac.kr/','목포가톨릭대':'https://ent.mcu.ac.kr/',
+  '문경대':'https://www.mkc.ac.kr/ipsi/','배재대':'https://www.pcu.ac.kr/enter/','배화여대':'https://ipsi.baewha.ac.kr/',
+  '백석대':'https://ipsi.bu.ac.kr/','백석문화대':'https://ipsi.bscu.ac.kr/','부경대':'https://iphak.pknu.ac.kr/',
+  '부산가톨릭대':'https://ipsi.cup.ac.kr/','부산경상대':'https://iphak.bsks.ac.kr/','부산과학기술대':'https://ipsi.bist.ac.kr/',
+  '부산교대':'https://enter.bnue.ac.kr/','부산대':'https://iphak.pusan.ac.kr/','부산보건대':'https://ipsi.bhu.ac.kr/',
+  '부산여대':'https://www.bwc.ac.kr/ipsi/','부산외대':'https://enter.bufs.ac.kr/','부산장신대':'https://ipsi.bpu.ac.kr/',
+  '부천대':'https://ipsi.bc.ac.kr/','삼육대':'https://ipsi.syu.ac.kr','삼육보건대':'https://exam.shu.ac.kr',
+  '상명대':'https://admission.smu.ac.kr','상지대':'https://admission.sangji.ac.kr/','서강대':'https://admission.sogang.ac.kr',
+  '서경대':'https://go.skuniv.ac.kr','서영대':'https://ipsi.seoyeong.ac.kr/','서울과기대':'https://admission.seoultech.ac.kr',
+  '서울기독대':'https://admission.scu.ac.kr/','서울대':'https://admission.snu.ac.kr','서울시립대':'https://admission.uos.ac.kr/',
+  '서울신학대':'https://ipsi.stu.ac.kr','서울여대':'https://admission.swu.ac.kr/','서울여자간호대':'https://ipsi.snjc.ac.kr/',
+  '서울장신대':'https://www.sjs.ac.kr/admission/main/index.php','서울한영대':'https://ipsi.shyu.ac.kr/','서원대':'https://iphak.seowon.ac.kr/',
+  '서일대':'https://www.seoil.ac.kr/ipsi/index.do','서정대':'https://ipsi.seojeong.ac.kr','선린대':'https://admission.sunlin.ac.kr/',
+  '성결대':'https://ipsi.sungkyul.ac.kr','성공회대':'https://enter.skhu.ac.kr/','성균관대':'https://admission.skku.edu/',
+  '성신여대':'https://ipsi.sungshin.ac.kr/','성운대':'https://ipsi.sw.ac.kr/','세명대':'https://ipsi.semyung.ac.kr/',
+  '세종대':'https://ipsi.sejong.ac.kr','송곡대':'https://ipsi.songgok.ac.kr/','송원대':'https://iphak.songwon.ac.kr/',
+  '송호대':'https://iphak.songho.ac.kr/','수성대':'https://ipsi.sc.ac.kr/','수원가톨릭대':'https://www.suwoncatholic.ac.kr/page/05_enter/enter_01.php',
+  '수원과학대':'https://ipsi.ssc.ac.kr','수원대':'https://ipsi.suwon.ac.kr','수원여대':'https://ipsi.swwu.ac.kr/',
+  '숙명여대':'https://www.sookmyung.ac.kr/kr/admission/admission-guide.do','순천대':'https://iphak.scnu.ac.kr/','순천제일대':'https://web.suncheon.ac.kr/ipsi/',
+  '순천향대':'https://ipsi.sch.ac.kr/','숭실대':'https://iphak.ssu.ac.kr','신경주대':'https://www.sgu.ac.kr/admissions',
+  '신구대':'https://enter.shingu.ac.kr/index.do','신라대':'https://ipsi.silla.ac.kr/','신성대':'https://ipsi.shinsung.ac.kr/',
+  '신안산대':'https://apply.sau.ac.kr/','신한대':'https://ipsi.shinhan.ac.kr','아신대':'https://admission.acts.ac.kr/',
+  '아주대':'https://www.iajou.ac.kr','아주자동차대':'https://ipsi.motor.ac.kr/','안동과학대':'https://ipsi.asc.ac.kr/',
+  '안산대':'https://iphak.ansan.ac.kr','안양대':'https://enter.anyang.ac.kr/','여주대':'https://ipsi.yit.ac.kr/',
+  '연성대':'https://ipsi.yeonsung.ac.kr/','연세대':'https://admission.yonsei.ac.kr','연세대(미래)':'https://admission.yonsei.ac.kr/',
+  '연암공과대':'https://enter.yc.ac.kr/','연암대':'https://iphak.yonam.ac.kr/','영남대':'https://enter.yu.ac.kr/',
+  '영남신학대':'https://entra.ytus.ac.kr/','영남이공대':'https://exam.ync.ac.kr/exam/Main.do','영산대':'https://ipsi.ysu.ac.kr/',
+  '영산선학대':'https://youngsan.ac.kr/bbs/content.php?co_id=2_1_1','영진전문대':'https://ipsi.yju.ac.kr/','예수대':'https://jesus.ac.kr/enter/',
+  '예원예술대':'https://admission.yewon.ac.kr/','오산대':'https://iphak.osan.ac.kr','용인대':'https://ipsi.yongin.ac.kr/',
+  '우석대':'https://enter.woosuk.ac.kr/main/','우송대':'https://ent.wsu.ac.kr/','우송정보대':'https://ent.wsi.ac.kr/',
+  '울산과학대':'https://ipsi.uc.ac.kr/','울산대':'https://iphak.ulsan.ac.kr/','웅지세무대':'https://www.wat.ac.kr/ipsi/',
+  '원광대':'https://ipsi.wku.ac.kr/','위덕대':'https://ipsi.uu.ac.kr/','유한대':'https://sky.yuhan.ac.kr',
+  '을지대':'https://admission.eulji.ac.kr','이화여대':'https://admission.ewha.ac.kr/','인덕대':'https://ipsi.induk.ac.kr',
+  '인제대':'https://iphak.inje.ac.kr/','인천가톨릭대':'https://admission.iccu.ac.kr/','인천대':'https://admission.inu.ac.kr',
+  '인하공업전문대':'https://ipsi.inhatc.ac.kr/','인하대':'https://admission.inha.ac.kr','장안대':'https://iphak.jangan.ac.kr/',
+  '재능대':'https://ipsi.jeiu.ac.kr','전남과학대':'https://ipsi.cntu.ac.kr/','전남대':'https://admission.jnu.ac.kr/',
+  '전북과학대':'https://www.jbsc.ac.kr/portal/ipsi/main/main.do','전북대':'https://enter.jbnu.ac.kr','전주교대':'https://enter.jnue.kr/',
+  '전주기전대':'https://admission.kijeon.ac.kr/','전주대':'https://iphak.jj.ac.kr/','전주비전대':'https://iphak.jvision.ac.kr/',
+  '제주국제대':'https://apply.jeju.ac.kr/','제주대':'https://www.jejunu.ac.kr/admission/ad.htm','제주한라대':'https://ipsi.chu.ac.kr/',
+  '조선대':'https://ibhak.chosun.ac.kr','조선이공대':'https://ipsi.cst.ac.kr/','중부대':'https://www.joongbu.ac.kr/ipsi/',
+  '중앙대':'https://admission.cau.ac.kr','중앙승가대':'https://admission.sangha.ac.kr/','진주교대':'https://enter.cue.ac.kr/',
+  '진주보건대':'https://ibsi.jhc.ac.kr/','창신대':'https://admission.cs.ac.kr/','창원문성대':'https://ipsi.cmu.ac.kr/',
+  '청강문화산업대':'https://ipsi.ck.ac.kr/','청운대':'https://enter.chungwoon.ac.kr/enter/index.do','청주교대':'https://www.cje.ac.kr/ipsi/',
+  '청주대':'https://ipsi.cju.ac.kr/','초당대':'https://admission.cdu.ac.kr/index.do','총신대':'http://admission.csu.ac.kr/',
+  '추계예술대':'https://enter.chugye.ac.kr/','춘천교대':'https://enter.cnue.ac.kr/','충남대':'https://ipsi.cnu.ac.kr/',
+  '충남도립대':'https://www.cnsu.ac.kr/entra/main.do','충북대':'https://ipsi.chungbuk.ac.kr/','충북도립대':'https://www.cpu.ac.kr/ipsi/main.do',
+  '충북보건과학대':'https://enter.chsu.ac.kr/','충청대':'https://www.ok.ac.kr/ipsi/index.do','칼빈대':'http://iphak.calvin.ac.kr/',
+  '평택대':'https://entrance.ptu.ac.kr/','포항대':'https://ipsi.pohang.ac.kr/','한경국립대':'https://ipsi.hknu.ac.kr',
+  '한국공학대':'https://iphak.tukorea.ac.kr/intro.html','한국관광대':'https://iphak.ktc.ac.kr/','한국교원대':'https://www.knue.ac.kr/ipsi/index.do',
+  '한국교통대':'https://www.ut.ac.kr/ipsi.do','한국기술교대':'https://www.koreatech.ac.kr/ipsi/','한국성서대':'https://ipsi.bible.ac.kr/',
+  '한국영상대':'https://ipsi.pro.ac.kr/','한국외대':'https://adms.hufs.ac.kr','한국체대':'https://ipsi.knsu.ac.kr/',
+  '한국침례신학대':'https://ipsi.kbtus.ac.kr/','한국항공대':'https://ibhak.kau.ac.kr','한국해양대':'https://ipsi.kmou.ac.kr/',
+  '한동대':'https://admissions.handong.edu/','한라대':'https://iphak.halla.ac.kr/','한림대':'https://admission.hallym.ac.kr/',
+  '한림성심대':'https://ipsi.hsc.ac.kr','한밭대':'https://www.hanbat.ac.kr/admission/','한서대':'https://helper.hanseo.ac.kr',
+  '한성대':'https://enter.hansung.ac.kr','한세대':'https://ipsi.hansei.ac.kr/','한신대':'https://ent.hs.ac.kr',
+  '한양대':'https://go.hanyang.ac.kr','한양여대':'https://admission.hywoman.ac.kr/','한영대':'https://www.hanyeong.ac.kr/ipsi/Page/Default.aspx',
+  '한예종':'https://www.karts.ac.kr/main/appl.do','협성대':'https://iphak.uhs.ac.kr/','혜전대':'https://ipsi.hj.ac.kr/',
+  '호남대':'https://enter.honam.ac.kr/','호남신대':'https://ipsi.htus.ac.kr/','호산대':'http://iphak.hosan.ac.kr/',
+  '호서대':'http://ipsi.hoseo.ac.kr/','홍익대':'https://www.hongik.ac.kr/kr/admission/undergraduate-admission.do','화성의과학대':'https://www.hsmu.ac.kr/admission/main/index.do'
 };
+// 캠퍼스 표시가 붙은 이름(예: 상명대(천안))은 본교 주소를 쓴다
+const ipsiUrl = a => IPSI[a.uk] || IPSI[String(a.uk||'').replace(/\(.*\)$/,'')] || '';
 const BYID = Object.fromEntries(APPS.map(a=>[a.id,a]));
 const TYPES = [
   {k:'first', label:'1차발표', tag:'1차'},
@@ -633,13 +711,13 @@ function renderAppDlg(){
       ${a.csat?`<dt>수능최저</dt><dd>${esc(a.csat)}</dd>`:''}
       ${a.quota?`<dt>모집인원</dt><dd>${esc(a.quota)}명</dd>`:''}
     </dl></div>
-    <div class="sec"><h4>입학처 홈페이지</h4>${IPSI[a.uk]
-      ? `<a class="btn" href="${esc(IPSI[a.uk])}" target="_blank" rel="noopener noreferrer">${esc(a.univ)} 입학처 열기 ↗</a>`
-      : `<a class="btn" href="https://search.naver.com/search.naver?query=${encodeURIComponent(a.univ+' 입학처')}" target="_blank" rel="noopener noreferrer">네이버에서 ${esc(a.univ)} 입학처 검색 ↗</a>`}</div>
     <div class="sec"><h4>일정 확정 — 날짜를 고르거나 ‘확정’을 누른 뒤 저장하세요</h4>
       ${hasFirst?schedRow('first','1단계 발표','t-first',a.first,e.first):''}
       ${schedRow('exam','전형일','t-'+((e.exam&&e.exam.type)||'면접'),a.exam,e.exam)}
       ${schedRow('final','최종 발표','t-final',a.final,e.final)}
+      <div class="srow"><div class="lab" style="color:var(--fg)">입학처</div><div class="ctl">${ipsiUrl(a)
+        ? `<a class="btn" href="${esc(ipsiUrl(a))}" target="_blank" rel="noopener noreferrer">${esc(a.univ)} 입학처 열기 ↗</a>`
+        : `<a class="btn" href="https://search.naver.com/search.naver?query=${encodeURIComponent(a.univ+' 입학처')}" target="_blank" rel="noopener noreferrer">네이버에서 ${esc(a.univ)} 입학처 검색 ↗</a>`}</div></div>
     </div>
     <div class="sec"><h4>결과</h4>
       ${hasFirst?`<div class="resrow"><span class="rl">1단계</span>${seg('r1',[['합격','1차 합격','ok'],['불합격','1차 불합격','bad'],['','미정','none']])}</div>`:''}
