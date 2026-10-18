@@ -247,7 +247,7 @@ textarea{width:100%;min-height:56px;resize:vertical}
       <label class="sel" style="margin:0">학생 <select id="resStu"></select></label>
       <label class="sel">결과 <select id="resFilter">
         <option value="">전체</option><option value="pending">발표 대기</option><option value="r1ok">1단계 합격</option>
-        <option value="ok">최종합격(추합 포함)</option><option value="bad">불합격</option></select></label>
+        <option value="ok">최종합격(추합 포함)</option><option value="wl">예비 대기</option><option value="bad">불합격</option></select></label>
       <span class="spacer"></span>
       <button class="btn primary" id="dlXlsx">엑셀 파일로 내려받기</button>
     </div>
@@ -488,6 +488,7 @@ function resFlags(a, key){
   if(key==='final' && o.fin){
     if(o.fin==='합격') return '<span class="flag ok">합격</span>';
     if(o.fin==='추가합격') return `<span class="flag add">추합${o.wait?' '+esc(o.wait)+'번':''}</span>`;
+    if(o.wait) return `<span class="flag add">예비 ${esc(o.wait)}번</span>`;
     return '<span class="flag bad">불합</span>';
   }
   return '';
@@ -586,7 +587,7 @@ function buildPrintHtml(){
   const stuName = state.stu ? (students.find(s=>s.sid===state.stu)||{}).name : '';
   const typesTxt = TYPES.filter(t=>state.types.has(t.k)).map(t=>t.label).join(' · ');
   const legend = TYPES.map(t=>`<span><i style="background:${COL[t.k]}"></i>${t.label}</span>`).join('');
-  const resTxt = ev => { const o=OV[ev.a.id]||{}; if(ev.key==='final'&&o.fin) return ` [${o.fin==='추가합격'?'추합'+(o.wait?o.wait+'번':''):o.fin}]`; if(ev.key==='first'&&o.r1) return ` [1차${o.r1==='합격'?'합':'불'}]`; return ''; };
+  const resTxt = ev => { const o=OV[ev.a.id]||{}; if(ev.key==='final'&&o.fin) return ` [${o.fin==='추가합격'?'추합'+(o.wait?o.wait+'번':''):(o.fin==='불합격'&&o.wait?'예비'+o.wait+'번':o.fin)}]`; if(ev.key==='first'&&o.r1) return ` [1차${o.r1==='합격'?'합':'불'}]`; return ''; };
   let body='';
   for(const [yy,mm] of monthsToShow()){
     const sw=new Date(yy,mm-1,1).getDay(), days=new Date(yy,mm,0).getDate();
@@ -722,7 +723,7 @@ function renderAppDlg(){
     <div class="sec"><h4>결과</h4>
       ${hasFirst?`<div class="resrow"><span class="rl">1단계</span>${seg('r1',[['합격','1차 합격','ok'],['불합격','1차 불합격','bad'],['','미정','none']])}</div>`:''}
       <div class="resrow"><span class="rl">최종</span>${seg('fin',[['합격','최종합격','ok'],['불합격','불합격','bad'],['추가합격','추가합격','add'],['','미정','none']])}
-        <span class="waitbox" ${d.fin==='추가합격'?'':'hidden'}><label for="waitNo">예비번호</label><input type="number" id="waitNo" min="1" inputmode="numeric" value="${esc(d.wait||'')}" placeholder="예: 12"></span></div>
+        <span class="waitbox" ${d.fin==='추가합격'||d.fin==='불합격'?'':'hidden'}><label for="waitNo">${d.fin==='불합격'?'예비번호(받았으면)':'예비번호'}</label><input type="number" id="waitNo" min="1" inputmode="numeric" value="${esc(d.wait||'')}" placeholder="예: 12"></span></div>
       <label for="memo" style="display:block;font-size:13px;color:var(--muted);margin:6px 0 4px">비고</label>
       <textarea id="memo" placeholder="등록 여부, 면접 시간, 고사장 등">${esc(d.memo||'')}</textarea>
     </div>
@@ -734,7 +735,7 @@ const appDlg=document.getElementById('appDlg');
 appDlg.addEventListener('click',e=>{
   if(e.target===appDlg || e.target.closest('[data-close]')) return appDlg.close();
   const set=e.target.closest('[data-set]');
-  if(set){ syncInputs(); draft[set.dataset.set]=set.dataset.v; if(set.dataset.set==='fin' && set.dataset.v!=='추가합격') delete draft.wait; renderAppDlg(); return; }
+  if(set){ syncInputs(); draft[set.dataset.set]=set.dataset.v; if(set.dataset.set==='fin' && !['추가합격','불합격'].includes(set.dataset.v)) delete draft.wait; renderAppDlg(); return; }
   const c=e.target.closest('[data-confirm]');
   if(c){ syncInputs(); const k=c.dataset.confirm; draft[k]={...(draft[k]||{}),conf:true}; renderAppDlg(); return; }
   const cd=e.target.closest('[data-cand]');
@@ -764,7 +765,7 @@ function syncInputs(){
   const ts=q('[data-k="exam-type"]');
   if(ts){ const v=ts.value; if(v!==(a.kind||'none')) draft.exam={...(draft.exam||{}),type:v}; else if(draft.exam){ delete draft.exam.type; } }
   for(const k of ['first','exam','final']) if(draft[k] && !Object.keys(draft[k]).length) delete draft[k];
-  const w=q('#waitNo'); if(w && draft.fin==='추가합격') { if(w.value) draft.wait=w.value; else delete draft.wait; }
+  const w=q('#waitNo'); if(w && (draft.fin==='추가합격'||draft.fin==='불합격')) { if(w.value) draft.wait=w.value; else delete draft.wait; }
   const m=q('#memo'); if(m){ if(m.value.trim()) draft.memo=m.value; else delete draft.memo; }
   if(!draft.r1) delete draft.r1; if(!draft.fin) delete draft.fin;
 }
@@ -784,7 +785,7 @@ function rowVals(a){
   const e=eff(a), o=OV[a.id]||{};
   const ds = s => !s ? '' : (s.set ? s.date.replace(/-/g,'.')+'.' + (s.time?' '+s.time:'') : s.date.replace(/-/g,'.')+'.' + (s.end?'~'+s.end.slice(5).replace('-','.')+'.':'') + (s.time?' '+s.time:''));
   return { sid:a.sid, name:a.name, univ:a.univ, track:a.track, major:a.major, eno:a.eno,
-    r1:o.r1||'', fin:o.fin||'', wait:o.fin==='추가합격'?(o.wait||''):'', memo:o.memo||'',
+    r1:o.r1||'', fin:o.fin||'', wait:(o.fin==='추가합격'||o.fin==='불합격')?(o.wait||''):'', memo:o.memo||'',
     kind:e.exam?e.exam.type:'', exam:ds(e.exam), first:ds(e.first), final:ds(e.final), csat:a.csat||'',
     _unc:{exam:!!(e.exam&&e.exam.unc), first:!!(e.first&&e.first.unc), final:!!(e.final&&e.final.unc)} };
 }
@@ -795,17 +796,18 @@ function resRows(){
     if(f==='pending') return !o.fin;
     if(f==='r1ok') return o.r1==='합격';
     if(f==='ok') return o.fin==='합격'||o.fin==='추가합격';
+    if(f==='wl') return o.fin==='불합격'&&!!o.wait;
     if(f==='bad') return o.fin==='불합격'||o.r1==='불합격';
     return true;
   });
 }
 function renderRes(){
   const scope = APPS.filter(a=>!state.resStu || a.sk===state.resStu);
-  const c={r1:0,ok:0,add:0,bad:0,pend:0};
-  scope.forEach(a=>{const o=OV[a.id]||{}; if(o.r1==='합격')c.r1++; if(o.fin==='합격')c.ok++; else if(o.fin==='추가합격')c.add++; else if(o.fin==='불합격')c.bad++; else c.pend++;});
+  const c={r1:0,ok:0,add:0,bad:0,wl:0,pend:0};
+  scope.forEach(a=>{const o=OV[a.id]||{}; if(o.r1==='합격')c.r1++; if(o.fin==='합격')c.ok++; else if(o.fin==='추가합격')c.add++; else if(o.fin==='불합격'){ if(o.wait) c.wl++; else c.bad++; } else c.pend++;});
   const stuCnt = new Set(scope.map(a=>a.sk)).size;
   document.getElementById('sumrow').innerHTML = [
-    [scope.length,`지원 (${stuCnt}명)`],[c.r1,'1단계 합격'],[c.ok,'최종합격'],[c.add,'추가합격'],[c.bad,'불합격'],[c.pend,'발표 대기']
+    [scope.length,`지원 (${stuCnt}명)`],[c.r1,'1단계 합격'],[c.ok,'최종합격'],[c.add,'추가합격'],[c.wl,'예비 대기'],[c.bad,'불합격'],[c.pend,'발표 대기']
   ].map(([n,l])=>`<div class="stat"><b>${n}</b><span>${l}</span></div>`).join('');
   const rows=resRows(); let prev='';
   const body = rows.map(a=>{ const v=rowVals(a); const nw=a.sk!==prev; prev=a.sk;
@@ -830,10 +832,10 @@ function buildXlsx(){
   ws['!merges'] = [{s:{r:0,c:0},e:{r:0,c:head.length-1}}];
   ws['!autofilter'] = {ref: XLSX.utils.encode_range({s:{r:3,c:0},e:{r:3+rows.length,c:head.length-1}})};
   const wb = XLSX.utils.book_new(); XLSX.utils.book_append_sheet(wb, ws, '지원결과');
-  const sum=[['번호','이름','지원','1단계 합격','최종합격','추가합격','불합격','발표 대기']];
-  students.forEach(s=>{ const ap=APPS.filter(a=>a.sk===s.sid); const c={r1:0,ok:0,add:0,bad:0,p:0};
-    ap.forEach(a=>{const o=OV[a.id]||{}; if(o.r1==='합격')c.r1++; if(o.fin==='합격')c.ok++; else if(o.fin==='추가합격')c.add++; else if(o.fin==='불합격')c.bad++; else c.p++;});
-    sum.push([s.no<99?s.no:'',s.name,ap.length,c.r1,c.ok,c.add,c.bad,c.p]); });
+  const sum=[['번호','이름','지원','1단계 합격','최종합격','추가합격','예비 대기','불합격','발표 대기']];
+  students.forEach(s=>{ const ap=APPS.filter(a=>a.sk===s.sid); const c={r1:0,ok:0,add:0,bad:0,wl:0,p:0};
+    ap.forEach(a=>{const o=OV[a.id]||{}; if(o.r1==='합격')c.r1++; if(o.fin==='합격')c.ok++; else if(o.fin==='추가합격')c.add++; else if(o.fin==='불합격'){ if(o.wait) c.wl++; else c.bad++; } else c.p++;});
+    sum.push([s.no<99?s.no:'',s.name,ap.length,c.r1,c.ok,c.add,c.wl,c.bad,c.p]); });
   const ws2=XLSX.utils.aoa_to_sheet(sum); ws2['!cols']=sum[0].map((h,i)=>({wch:i===1?10:9}));
   XLSX.utils.book_append_sheet(wb, ws2, '학생별 요약');
   return XLSX.write(wb, {bookType:'xlsx', type:'array'});
