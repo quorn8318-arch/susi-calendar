@@ -33,6 +33,20 @@ function parseDate(s){
 }
 
 /* ---------- 대학 일정 목록 ---------- */
+// 일정 목록에 1단계 합격자 발표가 빠져 있어 대학 모집요강으로 확인해 채운 날짜
+const EXTRA_FIRST = [
+  // 삼육대 2027학년도 수시 모집요강 「수시모집 전형일정」
+  {u:'삼육대', date:'2026-10-08', time:'14:00', t:'신학특별', note:'모집요강 확인'},
+  {u:'삼육대', date:'2026-10-15', time:'14:00', t:'재림교회목회자추천·기회균형Ⅰ·S/W인재', note:'모집요강 확인'},
+  {u:'삼육대', date:'2026-10-22', time:'14:00', t:'세움인재·예체능인재·기회균형Ⅱ·특수교육대상자', note:'모집요강 확인'},
+  // 세종대 2027학년도 수시 모집요강 「1단계 합격자 발표 및 2단계 일정·장소 안내」
+  {u:'세종대', date:'2026-10-08', time:'17:00', t:'학생부교과(항공시스템공학 특별전형)', note:'모집요강 확인'},
+  {u:'세종대', date:'2026-10-21', time:'17:00', t:'실기우수자 영화예술학과(연출제작·연기예술)', note:'모집요강 확인'},
+  {u:'세종대', date:'2026-10-23', time:'17:00', t:'학생부종합(사이버국방·국방AI융합시스템공학·국방AI로봇융합공학 특별전형)', note:'모집요강 확인'},
+  {u:'세종대', date:'2026-11-13', time:'17:00', t:'세종인재(면접형)', note:'모집요강 확인'},
+  // 한국항공대 2027학년도 수시 모집요강 「전형일정」
+  {u:'한국항공대', date:'2026-10-30', time:'09:00', t:'미래인재·고른기회 면접대상자', note:'모집요강 확인'}
+];
 // 시트 '일정목록': 날짜 요일 구분 대학 전형 시각 비고 / 시트 '전형일정': 전문대 수시 일정표
 function loadSchedule(wb){
   const names = wb.SheetNames;
@@ -51,6 +65,25 @@ function loadSchedule(wb){
   }
   const years = ev.map(e=>+e.date.slice(0,4)).filter(Boolean).sort();
   const Y = years[0] || new Date().getFullYear();
+  // 일정 목록에 빠진 1단계 합격자 발표 보충
+  const addFirst = e => {
+    if((byU[e.u]||[]).some(x=>x.kind==='1단계합격' && x.date===e.date && clean(x.t)===clean(e.t))) return;
+    const x = {kind:'1단계합격', time:'', note:'', ...e}; ev.push(x); (byU[x.u] ||= []).push(x);
+  };
+  // ① 대학 모집요강에서 확인한 날짜(일정 목록 연도와 같을 때만)
+  for(const x of EXTRA_FIRST) if(+x.date.slice(0,4)===Y && byU[x.u]) addFirst(x);
+  // ② 면접·실기 줄의 비고에 적힌 발표일: "간호 1단계 합격 발표 10.22", "대상자 발표 9.16"
+  for(const e of ev.slice()){
+    // 논술의 '대상자 발표'는 고사장 안내라서 1단계가 아니다. '대상자 발표'는 면접 줄에서만 1단계로 본다
+    if(!/면접|실기/.test(e.kind)) continue;
+    const re = e.kind==='면접' ? /(1단계\s*합격(?:자)?\s*발표|(?:면접\s*)?대상자\s*발표)\s*(\d{1,2})\.(\d{1,2})/ : /(1단계\s*합격(?:자)?\s*발표)\s*(\d{1,2})\.(\d{1,2})/;
+    const m = (e.note||'').match(re);
+    if(!m) continue;
+    const mo=+m[2], d=+m[3]; const iso = isoOf(mo>=3?Y:Y+1, mo, d);
+    if(iso < e.date) addFirst({u:e.u, date:iso, t:e.t, note:'면접 일정 비고에서 가져옴'});
+  }
+  ev.sort((a,b)=>a.date<b.date?-1:a.date>b.date?1:0);
+  for(const k in byU) byU[k].sort((a,b)=>a.date<b.date?-1:a.date>b.date?1:0);
   const jc = {};
   if(jcName){
     const R = sheetRows(wb, jcName);
@@ -191,6 +224,9 @@ function scoreEvent(e, trackC, majorS, cat, field){
   const FORM = /(서류|면접|추천|활동|탐구|학업|교과)형/;
   const fT = (T.match(FORM)||[])[1], fK = (trackC.match(FORM)||[])[1];
   if(fT && fK && fT!==fK) s -= .6;
+  // 비고가 '스포츠건강관리/조형예술'처럼 학과만 나열한 것이면 그 학과에만 해당한다
+  const nl = (e.note||'').trim();
+  if(majorS && majorS.length>=2 && /^[가-힣A-Za-z·\s]+(\/[가-힣A-Za-z·\s]+)+$/.test(nl) && !/전형|교과|종합|논술|실기|면접|서류|전체|제외/.test(nl) && !clean(nl).includes(majorS)) s -= .5;
   const majorList = /(학과|학부|전공|의예|약학|간호|치의|한의|수의)/.test(e.t);
   if(majorS && majorS.length>=2 && whole.includes(majorS)) s += majorList ? .65 : .25;
   else if(majorList && majorS && !/전체|제외/.test(e.t)) s -= .35;  // 다른 학과 일정
@@ -207,9 +243,10 @@ function scoreEvent(e, trackC, majorS, cat, field){
 // '학생부교과'처럼 종류 이름만 쓴 일정인가? '학생부교과(평생학습자)'처럼 괄호로 세부 전형을 단 것은 아니다
 function bareCat(T, k){
   const word = k==='실기' ? '(?:실기|실적)' : k;
-  const rx = new RegExp(`(?:학생부)?${word}(?:전형|위주)?(\\s*\\(([^)]*)\\))?`, 'g');
+  // '면접위주교과'·'교과면접전형'처럼 다른 말과 붙은 이름은 종류 이름만 쓴 것이 아니다
+  const rx = new RegExp(`(?<![가-힣])(?:학생부\\s*)?${word}(?:전형|위주)?(?![가-힣])(\\s*\\(([^)]*)\\))?`, 'g');
   let m; while((m = rx.exec(T))){
-    if(!m[1] || /^\s*(전체|모든|공통|\d차|\d단계)/.test(m[2])) return true;
+    if(!m[1] || /^\s*(전체|모든|공통|\d차|\d단계|단계별|일괄)/.test(m[2])) return true;
   }
   return false;
 }
@@ -373,12 +410,27 @@ function buildApps(wb, S){
       if(!a.exam && !(/서류/.test(trackN) && cat!=='논술' && cat!=='실기')){   // 서류형은 면접이 없다
         const kinds = cat==='논술' ? ['논술'] : cat==='실기' ? ['실기','면접'] : ARTS.test(x.major+x.track) ? ['면접','실기'] : ['면접'];
         const p = pick(E, kinds, trackC, majorS, cat, field, .6, cat==='논술' || cat==='실기');
-        if(p){ a.kind = p.e.kind; a.exam = slotFrom(p.e, p.unc); if(p.cands.length) a.cands.exam = p.cands; }
+        if(p){ a.kind = p.e.kind; a.exam = slotFrom(p.e, p.unc); a._examEv = p.e; if(p.cands.length) a.cands.exam = p.cands; }
       }
+      // 엑셀에 전형 종류가 없을 때(예: '기회균등전형') 고른 면접 일정의 종류를 따른다
+      let catF = cat;
+      if(!catF && a._examEv){ for(const [k,re] of Object.entries(CAT_RE)) if(re.test(a._examEv.t)){ catF = k; break; } }
       if(!a.first){
-        const p = pick(E, ['1단계합격'], trackC, majorS, cat, field, .6, false);
+        let p = pick(E, ['1단계합격'], trackC, majorS, catF, field, .6, false);
+        // 면접이 정해졌으면, 면접 3주 안쪽의 같은 종류 1단계 발표는 조금 낮은 점수도 받아들인다
+        if(!p && a.exam){
+          const lo = new Date(a.exam.date); lo.setDate(lo.getDate()-21); const loIso = lo.toISOString().slice(0,10);
+          // 학과 이름이 발표 일정에 있으면 0.3, 전형 종류만 맞으면 0.55 이상
+          const q = pick(E.filter(e=>e.date>=loIso && e.date<=a.exam.date), ['1단계합격'], trackC, majorS, catF, field, .3, false);
+          const majorHit = q && majorS.length>=2 && clean(q.e.t).includes(majorS);
+          const catHit = q && catF && CAT_RE[catF].test(q.e.t) && q.score>=.55;
+          if(q && (majorHit || catHit)){ p = q; p.unc = true; }
+        }
         if(p && (a.exam || p.score>=.9) && (!a.exam || p.e.date<=a.exam.date)){ a.first = slotFrom(p.e, p.unc); delete a.first.end; if(p.cands.length) a.cands.first = p.cands; }
       }
+      // 고른 면접 일정에 '1단계'가 적혀 있는데 발표일을 못 찾았으면 알려 준다
+      if(!a.first && a._examEv && /1단계|단계별|대상자/.test(a._examEv.t + ' ' + (a._examEv.note||''))) refNotes.push('1단계 합격자 발표가 있는 전형인데 일정 목록에 발표일이 없습니다. 입학처에서 확인해 넣어 주세요');
+      delete a._examEv;
       if(!a.final){
         // 최종 발표는 전형일(또는 1단계 발표) 뒤에 있다
         const after = a.exam ? (a.exam.end || a.exam.date) : a.first ? a.first.date : '';
