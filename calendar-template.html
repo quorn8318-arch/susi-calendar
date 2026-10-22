@@ -103,6 +103,12 @@ a.btn{display:inline-block;text-decoration:none;color:var(--accent);font-weight:
 .ev .sub2{display:block;color:var(--muted);font-size:12.5px;overflow-wrap:anywhere}
 .ev .sub3{display:block;color:var(--faint);font-size:11.5px;line-height:1.3;overflow-wrap:anywhere}
 .ev.past{opacity:.55}
+.ev.cxl{--c:var(--faint);background:none}
+.ev.cxl .tg,.ev.cxl .who,.ev.cxl .sub2,.ev.cxl .sub3{color:var(--faint);text-decoration:line-through}
+.dayitem.cxl{--c:var(--faint)}
+.dayitem.cxl .t span:first-child,.dayitem.cxl .t .nm{text-decoration:line-through}
+.dayitem.cxl .t{color:var(--faint)}
+.pill.cxl{text-decoration:line-through;color:var(--faint);--c:var(--faint)}
 .ev.unc{border-left-style:dashed;background:repeating-linear-gradient(135deg,transparent 0 6px,var(--line-soft) 6px 8px)}
 .flag{display:inline-block;font-size:11px;font-weight:700;border-radius:4px;padding:0 5px;margin-left:4px;vertical-align:1px;line-height:1.6}
 .flag.unc{background:var(--wait-bg);color:var(--wait)}
@@ -473,12 +479,14 @@ function allEvents(){
   const out=[];
   for(const a of APPS){
     const e=eff(a);
-    const push=(key,type,s)=>{
+    // 1차 불합격이면 전형일(면접 등)은 취소선으로 남기고, 최종 발표는 달력에서 뺀다
+    const r1bad = e.o.r1==='불합격';
+    const push=(key,type,s,cxl)=>{
       if(!s) return;
-      if(s.unc && s.end){ let d=s.date, guard=0; while(d<=s.end && guard++<20){ out.push({a,key,type,date:d,time:s.time||'',unc:true,s}); d=addDay(d);} }
-      else out.push({a,key,type,date:s.date,time:s.time||'',unc:!!s.unc,s});
+      if(s.unc && s.end){ let d=s.date, guard=0; while(d<=s.end && guard++<20){ out.push({a,key,type,date:d,time:s.time||'',unc:!cxl,cxl:!!cxl,s}); d=addDay(d);} }
+      else out.push({a,key,type,date:s.date,time:s.time||'',unc:!cxl&&!!s.unc,cxl:!!cxl,s});
     };
-    push('first','first',e.first); if(e.exam) push('exam',e.exam.type,e.exam); push('final','final',e.final);
+    push('first','first',e.first); if(e.exam) push('exam',e.exam.type,e.exam,r1bad); if(!r1bad) push('final','final',e.final);
   }
   return out.sort((x,y)=> x.date<y.date?-1:x.date>y.date?1: TYPES.findIndex(t=>t.k===x.type)-TYPES.findIndex(t=>t.k===y.type) || x.a.no-y.a.no);
 }
@@ -521,9 +529,9 @@ document.querySelectorAll('.tab').forEach(t=>t.addEventListener('click',()=>show
 function evChip(ev){
   const t=TMAP[ev.type]; const a=ev.a;
   const past = ev.date < TODAY;
-  return `<button class="ev t-${ev.type}${ev.unc?' unc':''}${past?' past':''}" data-id="${a.id}" title="${esc(a.name+' · '+a.univ+' '+a.major+(a.track?' · '+a.track:''))}">`+
+  return `<button class="ev t-${ev.type}${ev.unc?' unc':''}${past?' past':''}${ev.cxl?' cxl':''}" data-id="${a.id}" title="${esc(a.name+' · '+a.univ+' '+a.major+(a.track?' · '+a.track:''))}${ev.cxl?' (1차 불합격으로 응시 안 함)':''}">`+
     `<span class="tg">${t.tag}</span><span class="who">${esc(a.name)} ${esc(shortU(a.univ))}</span>`+
-    (ev.unc?'<span class="flag unc">미정</span>':'')+resFlags(a,ev.key)+
+    (ev.unc?'<span class="flag unc">미정</span>':'')+(ev.cxl?'<span class="flag bad">1차 불합격</span>':resFlags(a,ev.key))+
     `<span class="sub2">${esc(a.major||'')}${ev.time?' · '+esc(ev.time):''}</span>`+(a.track?`<span class="sub3">${esc(a.track)}</span>`:'')+`</button>`;
 }
 function filteredEvents(){
@@ -596,8 +604,9 @@ function buildPrintHtml(){
       const key=`${yy}-${pad(mm)}-${pad(d)}`, w=(sw+d-1)%7;
       const dayEv=byDay[key]||[]; const grp={}; dayEv.forEach(ev=>(grp[ev.type] ||= []).push(ev));
       const list=Object.entries(grp).map(([ty,arr])=> arr.length>4
-        ? `<div class="e g" style="border-color:${COL[ty]}"><b style="color:${COL[ty]}">${TMAP[ty].tag} ${arr.length}건</b> ${arr.map(ev=>esc(ev.a.name+' '+shortU(ev.a.univ)+resTxt(ev))+(ev.unc?' <u>미정</u>':'')).join(' · ')}</div>`
+        ? `<div class="e g" style="border-color:${COL[ty]}"><b style="color:${COL[ty]}">${TMAP[ty].tag} ${arr.length}건</b> ${arr.map(ev=>ev.cxl?`<s>${esc(ev.a.name+' '+shortU(ev.a.univ))}</s>`:esc(ev.a.name+' '+shortU(ev.a.univ)+resTxt(ev))+(ev.unc?' <u>미정</u>':'')).join(' · ')}</div>`
         : arr.map(ev=>{const a=ev.a,t=TMAP[ev.type];
+        if(ev.cxl) return `<div class="e" style="border-color:#bbb;color:#999"><s><b>${t.tag}</b> ${esc(a.name)} ${esc(shortU(a.univ))}</s> [1차불합]<br><small><s>${esc(a.major||'')}</s></small></div>`;
         return `<div class="e" style="border-color:${COL[ev.type]}"><b style="color:${COL[ev.type]}">${t.tag}</b> ${esc(a.name)} ${esc(shortU(a.univ))}${ev.unc?' <u>미정</u>':''}${esc(resTxt(ev))}<br><small>${esc(a.major||'')}${ev.time?' · '+esc(ev.time):''}${a.track?' · '+esc(a.track):''}</small></div>`;}).join('')).join('');
       cells.push(`<td class="${w===0?'sun':w===6?'sat':''}${key===TODAY?' today':''}"><div class="n">${d}</div>${list}</td>`);
     }
@@ -640,8 +649,8 @@ function openDay(key){
   const list = filteredEvents().filter(e=>e.date===key);
   const dlg=document.getElementById('dayDlg');
   dlg.innerHTML = `<div class="dhead"><div><h3>${fmtD(key)} 일정</h3><p>${list.length}건${state.stu?' · 선택한 학생만':''}</p></div><button class="x" data-close aria-label="닫기">×</button></div>
-  <div class="dbody"><div>${list.length? list.map(ev=>{const a=ev.a,t=TMAP[ev.type];return `<div class="dayitem t-${ev.type}" data-id="${a.id}">
-    <div><div class="t"><span style="color:var(--c)">${t.label}</span> · ${esc(a.name)} · ${esc(a.univ)} ${esc(a.major||'')}${ev.unc?'<span class="flag unc">미정</span>':''}${resFlags(a,ev.key)}${(ev.key==='first'||ev.key==='final')&&a.eno?`<span class="eno">수험번호 <b>${esc(a.eno)}</b></span>`:''}</div>
+  <div class="dbody"><div>${list.length? list.map(ev=>{const a=ev.a,t=TMAP[ev.type];return `<div class="dayitem t-${ev.type}${ev.cxl?' cxl':''}" data-id="${a.id}">
+    <div><div class="t"><span style="color:var(--c)">${t.label}</span> · <span class="nm">${esc(a.name)} · ${esc(a.univ)} ${esc(a.major||'')}</span>${ev.unc?'<span class="flag unc">미정</span>':''}${ev.cxl?'<span class="flag bad">1차 불합격 · 응시 안 함</span>':resFlags(a,ev.key)}${(ev.key==='first'||ev.key==='final')&&a.eno?`<span class="eno">수험번호 <b>${esc(a.eno)}</b></span>`:''}</div>
     <div class="d">${esc(a.track||'')}${ev.time?' · <b>'+esc(ev.time)+'</b>':''}${ev.unc&&ev.s.raw?' · 원자료 '+esc(ev.s.raw):''}</div>
     ${a.csat||a.method?`<div class="d">수능최저: ${esc(a.csat||'없음')}${a.method?' · '+esc(a.method.replace(/\n/g,' / ')):''}</div>`:''}</div>
     <div class="d">자세히 ›</div></div>`}).join('') : '<p class="empty-note">이 날에는 일정이 없습니다.</p>'}</div></div>`;
@@ -860,15 +869,16 @@ function renderStu(){
   const apps=APPS.filter(a=>a.sk===s.sid && (!q || s.name.includes(q) || a.univ.includes(q) || (a.major||'').includes(q) || (a.eno||'').includes(q)));
   const nextOf = a => { const e=eff(a); return [e.first,e.exam,e.final].filter(Boolean).map(x=>x.date).filter(d=>d>=TODAY).sort()[0]||'9999'; };
   apps.sort((x,y)=>nextOf(x)<nextOf(y)?-1:1);
-  const upcoming = allEvents().filter(ev=>ev.a.sk===s.sid && ev.date>=TODAY)[0];
+  const upcoming = allEvents().filter(ev=>ev.a.sk===s.sid && ev.date>=TODAY && !ev.cxl)[0];
   document.getElementById('stucard').innerHTML = `<div class="card"><h2>${s.no<99?s.no+'번 ':''}${esc(s.name)}</h2>
     <div style="color:var(--muted)">학번 ${esc(s.num||'미기재')} · 지원 ${APPS.filter(a=>a.sk===s.sid).length}곳${upcoming?` · 다음 일정 <b style="color:var(--fg)">${fmtD(upcoming.date)} ${TMAP[upcoming.type].label} ${esc(shortU(upcoming.a.univ))}</b>`:''}</div>
     <div class="applist">${apps.map(a=>{const e=eff(a);
-      const pill=(k,s2)=>!s2?'':`<span class="pill t-${k}${s2.unc?' unc':''}${s2.date<TODAY?' past':''}"><span class="k">${TMAP[k].tag}</span>${fmtD(s2.date)}${s2.end?'~'+fmtD(s2.end):''}${s2.unc?' 미정':''}</span>`;
+      const r1bad = e.o.r1==='불합격';
+      const pill=(k,s2,cxl)=>!s2?'':`<span class="pill t-${k}${s2.unc&&!cxl?' unc':''}${s2.date<TODAY?' past':''}${cxl?' cxl':''}"><span class="k">${TMAP[k].tag}</span>${fmtD(s2.date)}${s2.end?'~'+fmtD(s2.end):''}${s2.unc&&!cxl?' 미정':''}</span>`;
       const jcHint = a.jc && !e.exam && REFS[a.uk] && REFS[a.uk].jc && (REFS[a.uk].jc.iv||REFS[a.uk].jc.pr) ? '<span class="pill" style="border-style:dashed">면접·실기 여부 확인</span>' : '';
       const noDate = !e.first && !e.exam && !e.final ? '<span class="pill" style="border-style:dashed">날짜 직접 입력 필요</span>' : '';
       return `<div class="app" data-id="${a.id}"><div><div class="u">${esc(a.univ)}${a.eno?`<span class="eno">수험번호 <b>${esc(a.eno)}</b></span>`:''}</div><div class="m">${esc(a.major||'')} · ${esc(a.track||'')}</div></div>
-        <div class="tl">${pill('first',e.first)}${e.exam?pill(e.exam.type,e.exam):''}${pill('final',e.final)}${jcHint}${noDate}</div>
+        <div class="tl">${pill('first',e.first)}${e.exam?pill(e.exam.type,e.exam,r1bad):''}${r1bad?'':pill('final',e.final)}${jcHint}${noDate}</div>
         <div class="res-cell">${resFlags(a,'first')}${resFlags(a,'final')||'<span class="flag" style="background:var(--sunk);color:var(--muted)">발표 대기</span>'}</div></div>`;}).join('')}</div></div>`;
 }
 document.getElementById('stulist').addEventListener('click',e=>{const b=e.target.closest('[data-sid]'); if(b){state.stuPick=b.dataset.sid; renderStu();}});
