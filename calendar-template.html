@@ -951,6 +951,7 @@ const lk = { univ:'', ban:'', r1:'', fin:'', q:'', sort:'univ' };
   document.getElementById('lkUnivList').innerHTML = univs.map(u=>`<option value="${esc(u)}">`).join('');
   const bans=[...new Set(APPS.map(banOf).filter(Boolean))].sort((x,y)=>x-y);
   document.getElementById('lkBan').innerHTML = '<option value="">전체</option>'+bans.map(b=>`<option value="${b}">${b}반</option>`).join('');
+  if(bans.length<2) document.getElementById('lkBan').closest('label').hidden=true;
 })();
 function lookRows(){
   const uq=lk.univ.trim(), q=lk.q.trim();
