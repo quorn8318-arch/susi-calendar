@@ -15,30 +15,30 @@
   --fg:#1d1c1a; --muted:#6b6862; --faint:#9a968e;
   --accent:#2b4c7e; --today:#fff6d6; --today-line:#e7c64d;
   --c-first:#6d4fd8; --c-iv:#e2611c; --c-es:#11806f; --c-pr:#c42b5b; --c-fn:#2a62c4;
-  --ok:#1f7a3d; --ok-bg:#e3f3e7; --bad:#b3261e; --bad-bg:#fbe6e4; --wait:#8a5a00; --wait-bg:#fdf0d5;
+  --hl:#fff176; --hl-fg:#1d1c1a; --hl2:#aeefd3; --hl3:#bfe3ff; --win:#1b8a3a; --win-fg:#ffffff; --wl:#8a5a00; --wl-fg:#ffffff; --ok:#1f7a3d; --ok-bg:#e3f3e7; --bad:#b3261e; --bad-bg:#fbe6e4; --wait:#8a5a00; --wait-bg:#fdf0d5;
   --sun:#d0473a; --sat:#3b6fc4;
   --shadow:0 10px 40px rgba(20,18,12,.18);
   --font:"IBM Plex Sans KR","Apple SD Gothic Neo","Malgun Gothic",system-ui,sans-serif;
   color-scheme:light;
 }
 :root[data-bg="lav"]{--bg:#f1ecfb;--sunk:#e8e1f7;--line:#d8cfee;--line-soft:#e8e2f5;--today:#fff4c9}
-:root[data-bg="mint"]{--bg:#e8f6f0;--sunk:#daefe6;--line:#c5e2d5;--line-soft:#dcede5;--today:#fff4c9}
+:root[data-bg="mint"]{--hl2:#ffc6dc;--bg:#e8f6f0;--sunk:#daefe6;--line:#c5e2d5;--line-soft:#dcede5;--today:#fff4c9}
 :root[data-bg="peach"]{--bg:#fdf0e7;--sunk:#f8e2d4;--line:#eed1bf;--line-soft:#f4e3d8;--today:#fff1bf}
-:root[data-bg="sky"]{--bg:#e9f2fc;--sunk:#dbe8f8;--line:#c8daf0;--line-soft:#dfe9f6;--today:#fff4c9}
+:root[data-bg="sky"]{--hl3:#dccbff;--bg:#e9f2fc;--sunk:#dbe8f8;--line:#c8daf0;--line-soft:#dfe9f6;--today:#fff4c9}
 :root[data-bg="pink"]{--bg:#fcecf2;--sunk:#f7dee8;--line:#eecbd8;--line-soft:#f5e0e9;--today:#fff4c9}
 @media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
   --bg:#17181b; --surface:#202226; --sunk:#1b1c20; --line:#34363c; --line-soft:#2b2d32;
   --fg:#ecebe7; --muted:#a8a59e; --faint:#77746d;
   --accent:#8fb2ea; --today:#3a3320; --today-line:#b8962c;
   --c-first:#a691ff; --c-iv:#ff9257; --c-es:#3fc2ab; --c-pr:#ff6f98; --c-fn:#6fa2ff;
-  --ok:#6fd38f; --ok-bg:#1d3324; --bad:#ff8a80; --bad-bg:#3a2020; --wait:#f0c060; --wait-bg:#3a3020;
+  --hl:#e3c51a; --hl-fg:#17181b; --hl2:#5fd3a8; --hl3:#7cc0f5; --win:#2e7d32; --win-fg:#ffffff; --wl:#f0c060; --wl-fg:#17181b; --ok:#6fd38f; --ok-bg:#1d3324; --bad:#ff8a80; --bad-bg:#3a2020; --wait:#f0c060; --wait-bg:#3a3020;
   --sun:#ff8577; --sat:#86aef5; --shadow:0 10px 40px rgba(0,0,0,.5); color-scheme:dark}}
 :root[data-theme="dark"]{
   --bg:#17181b; --surface:#202226; --sunk:#1b1c20; --line:#34363c; --line-soft:#2b2d32;
   --fg:#ecebe7; --muted:#a8a59e; --faint:#77746d;
   --accent:#8fb2ea; --today:#3a3320; --today-line:#b8962c;
   --c-first:#a691ff; --c-iv:#ff9257; --c-es:#3fc2ab; --c-pr:#ff6f98; --c-fn:#6fa2ff;
-  --ok:#6fd38f; --ok-bg:#1d3324; --bad:#ff8a80; --bad-bg:#3a2020; --wait:#f0c060; --wait-bg:#3a3020;
+  --hl:#e3c51a; --hl-fg:#17181b; --hl2:#5fd3a8; --hl3:#7cc0f5; --win:#2e7d32; --win-fg:#ffffff; --wl:#f0c060; --wl-fg:#17181b; --ok:#6fd38f; --ok-bg:#1d3324; --bad:#ff8a80; --bad-bg:#3a2020; --wait:#f0c060; --wait-bg:#3a3020;
   --sun:#ff8577; --sat:#86aef5; --shadow:0 10px 40px rgba(0,0,0,.5); color-scheme:dark}
 *{box-sizing:border-box}
 html,body{margin:0;padding:0}
@@ -132,6 +132,30 @@ tr.newstu td{border-top:2px solid var(--line)}
 td.num{font-variant-numeric:tabular-nums;white-space:nowrap}
 td.res{text-align:center;font-weight:700;white-space:nowrap}
 td.res.ok{color:var(--ok);background:var(--ok-bg)}td.res.bad{color:var(--bad);background:var(--bad-bg)}td.res.add{color:var(--wait);background:var(--wait-bg)}
+/* 최종합격: 노란 형광펜 · 추가합격: 하늘색(배경이 하늘색이면 연보라) · 예비번호: 진하게 */
+.ev.won,.dayitem.won,.app.won{background:var(--hl)}
+.ev.won.past{opacity:1}
+.ev.won:hover,.dayitem.won:hover,.app.won:hover{background:var(--hl);filter:brightness(.96)}
+.ev.won .who,.ev.won .sub2,.ev.won .sub3,.dayitem.won .t,.dayitem.won .d,.app.won .u,.app.won .m{color:var(--hl-fg)}
+tbody tr.won td,tbody tr.won:hover td{background:var(--hl);color:var(--hl-fg)}
+.ev.won.addw,.dayitem.won.addw,.app.won.addw,.ev.won.addw:hover,.dayitem.won.addw:hover,.app.won.addw:hover{background:var(--hl3)}
+/* 1차 합격: 민트 형광펜(배경이 민트면 분홍) · 지난 일정이어도 흐리게 하지 않음 · 합격 이름은 굵게 */
+.ev.r1w,.dayitem.r1w,.ev.r1w:hover,.dayitem.r1w:hover{background:var(--hl2)}
+.ev.r1w.past{opacity:1}
+.ev.r1w .who,.ev.r1w .sub2,.ev.r1w .sub3,.dayitem.r1w .t,.dayitem.r1w .d{color:var(--hl-fg)}
+.ev.won .who,.ev.r1w .who,.dayitem.won .t,.dayitem.r1w .t{font-weight:800}
+tbody tr.won.addw td,tbody tr.won.addw:hover td{background:var(--hl3)}
+.flag.flag.win{background:var(--win);color:var(--win-fg);font-size:12.5px;font-weight:800;padding:1px 8px;letter-spacing:.03em;box-shadow:0 1px 0 rgba(0,0,0,.25)}
+.flag.flag.wl{background:var(--wl);color:var(--wl-fg);font-size:12.5px;font-weight:800;padding:1px 8px;box-shadow:0 1px 0 rgba(0,0,0,.25)}
+.dayitem .flag.flag.win,.app .flag.flag.win,.dayitem .flag.flag.wl,.app .flag.flag.wl{font-size:14px;padding:2px 10px}
+tbody tr.won td.res.ok,tbody tr.won td.res.add{background:var(--win);color:var(--win-fg);font-size:14px;font-weight:800}
+td.num.wlc{font-weight:800;font-size:14px;color:var(--wait)}
+/* 결과 조회 탭 */
+table.lktable{min-width:1100px}
+.lktable td.lkmuted{color:var(--faint);font-weight:400}
+tbody tr.r1row td,tbody tr.r1row:hover td{background:var(--hl2);color:var(--hl-fg)}
+.lkcount{margin:-6px 0 10px;color:var(--muted);font-size:13.5px}
+.lookbar .sel input{font-size:14px}
 td{white-space:nowrap} td.tw{white-space:normal;min-width:170px;max-width:260px}
 td .unc{color:var(--wait);font-weight:600}
 
@@ -233,6 +257,7 @@ textarea{width:100%;min-height:56px;resize:vertical}
     <button class="tab" role="tab" id="tab-cal" aria-selected="true" data-tab="cal">수시 일정 달력</button>
     <button class="tab" role="tab" id="tab-res" aria-selected="false" data-tab="res">지원결과</button>
     <button class="tab" role="tab" id="tab-stu" aria-selected="false" data-tab="stu">학생 검색</button>
+    <button class="tab" role="tab" id="tab-look" aria-selected="false" data-tab="look">결과 조회</button>
   </div>
 
   <section id="pane-cal">
@@ -267,6 +292,25 @@ textarea{width:100%;min-height:56px;resize:vertical}
       <div class="stulist" id="stulist"></div>
       <div id="stucard"></div>
     </div>
+  </section>
+
+  <section id="pane-look" hidden>
+    <div class="toolbar lookbar">
+      <label class="sel" style="margin:0">대학 <input type="search" id="lkUniv" list="lkUnivList" placeholder="대학 이름 입력·선택" autocomplete="off" style="width:190px"></label>
+      <datalist id="lkUnivList"></datalist>
+      <label class="sel">반 <select id="lkBan"></select></label>
+      <label class="sel">1단계 <select id="lkR1">
+        <option value="">전체</option><option value="ok">1차 합격</option><option value="bad">1차 불합격</option><option value="wait">1차 발표 대기</option><option value="none">1단계 없는 전형</option></select></label>
+      <label class="sel">최종 <select id="lkFin">
+        <option value="">전체</option><option value="won">합격 전체(최초+추합)</option><option value="first">최초합격</option><option value="add">추가합격</option>
+        <option value="wl">예비 대기</option><option value="bad">불합격(예비 없음)</option><option value="badall">불합격 전체</option><option value="pend">발표 대기</option></select></label>
+      <label class="sel">이름·학과 <input type="search" id="lkQ" placeholder="이름·학과·수험번호" style="width:160px"></label>
+      <label class="sel">정렬 <select id="lkSort"><option value="univ">대학 → 반·번호</option><option value="stu">반·번호 → 대학</option><option value="date">최종 발표일순</option></select></label>
+      <button class="btn" id="lkReset">조건 지우기</button>
+    </div>
+    <div class="sumrow" id="lkSum"></div>
+    <p class="lkcount" id="lkCount"></p>
+    <div class="tablebox"><table id="lkTable" class="lktable"></table></div>
   </section>
   <p class="foot" id="foot"></p>
 </div>
@@ -488,15 +532,22 @@ function allEvents(){
     };
     push('first','first',e.first); if(e.exam) push('exam',e.exam.type,e.exam,r1bad); if(!r1bad) push('final','final',e.final);
   }
-  return out.sort((x,y)=> x.date<y.date?-1:x.date>y.date?1: TYPES.findIndex(t=>t.k===x.type)-TYPES.findIndex(t=>t.k===y.type) || x.a.no-y.a.no);
+  // 같은 날짜 안에서는 대학 이름순 → 반·번호(학번)순, 같은 학생·대학이면 일정 종류순
+  return out.sort((x,y)=> x.date<y.date?-1:x.date>y.date?1: (x.a.univ||'').localeCompare(y.a.univ||'','ko') || String(x.a.sid||'').localeCompare(String(y.a.sid||'')) || x.a.no-y.a.no || TYPES.findIndex(t=>t.k===x.type)-TYPES.findIndex(t=>t.k===y.type));
 }
+const isWon = a => { const f=(OV[a.id]||{}).fin; return f==='합격'||f==='추가합격'; };
+const isAdd = a => (OV[a.id]||{}).fin==='추가합격';
+const isWl = a => { const o=OV[a.id]||{}; return o.fin==='불합격'&&!!o.wait; };
+const wonCls = a => isWon(a)?' won'+(isAdd(a)?' addw':''):'';
+const evCls = ev => ev.key==='final' ? wonCls(ev.a) : (ev.key==='first' && (OV[ev.a.id]||{}).r1==='합격' ? ' r1w' : '');
+const prRes = (ev,txt) => ev.key==='first'&&(OV[ev.a.id]||{}).r1==='합격' ? '<span class="gw gwa">'+txt+'</span>' : ev.key==='final'&&isWon(ev.a) ? '<span class="gw'+(isAdd(ev.a)?' gwb':'')+'">'+txt+'</span>' : ev.key==='final'&&isWl(ev.a) ? '<b class="gwl">'+txt+'</b>' : txt;
 function resFlags(a, key){
   const o=OV[a.id]||{};
-  if(key==='first' && o.r1) return o.r1==='합격'?'<span class="flag ok">1차합</span>':'<span class="flag bad">1차불</span>';
+  if(key==='first' && o.r1) return o.r1==='합격'?'<span class="flag ok win">1차합</span>':'<span class="flag bad">1차불</span>';
   if(key==='final' && o.fin){
-    if(o.fin==='합격') return '<span class="flag ok">합격</span>';
-    if(o.fin==='추가합격') return `<span class="flag add">추합${o.wait?' '+esc(o.wait)+'번':''}</span>`;
-    if(o.wait) return `<span class="flag add">예비 ${esc(o.wait)}번</span>`;
+    if(o.fin==='합격') return '<span class="flag ok win">합격</span>';
+    if(o.fin==='추가합격') return `<span class="flag add win">추합${o.wait?' '+esc(o.wait)+'번':''}</span>`;
+    if(o.wait) return `<span class="flag add wl">예비 ${esc(o.wait)}번</span>`;
     return '<span class="flag bad">불합</span>';
   }
   return '';
@@ -520,7 +571,7 @@ function toast(msg){ const t=document.getElementById('toast'); t.textContent=msg
 
 function showTab(k){
   document.querySelectorAll('.tab').forEach(t=>t.setAttribute('aria-selected', t.dataset.tab===k));
-  ['cal','res','stu'].forEach(x=>document.getElementById('pane-'+x).hidden = x!==k);
+  ['cal','res','stu','look'].forEach(x=>document.getElementById('pane-'+x).hidden = x!==k);
   rememberView({tab:k});
 }
 document.querySelectorAll('.tab').forEach(t=>t.addEventListener('click',()=>showTab(t.dataset.tab)));
@@ -529,7 +580,7 @@ document.querySelectorAll('.tab').forEach(t=>t.addEventListener('click',()=>show
 function evChip(ev){
   const t=TMAP[ev.type]; const a=ev.a;
   const past = ev.date < TODAY;
-  return `<button class="ev t-${ev.type}${ev.unc?' unc':''}${past?' past':''}${ev.cxl?' cxl':''}" data-id="${a.id}" title="${esc(a.name+' · '+a.univ+' '+a.major+(a.track?' · '+a.track:''))}${ev.cxl?' (1차 불합격으로 응시 안 함)':''}">`+
+  return `<button class="ev t-${ev.type}${ev.unc?' unc':''}${past?' past':''}${ev.cxl?' cxl':''}${evCls(ev)}" data-id="${a.id}" title="${esc(a.name+' · '+a.univ+' '+a.major+(a.track?' · '+a.track:''))}${ev.cxl?' (1차 불합격으로 응시 안 함)':''}">`+
     `<span class="tg">${t.tag}</span><span class="who">${esc(a.name)} ${esc(shortU(a.univ))}</span>`+
     (ev.unc?'<span class="flag unc">미정</span>':'')+(ev.cxl?'<span class="flag bad">1차 불합격</span>':resFlags(a,ev.key))+
     `<span class="sub2">${esc(a.major||'')}${ev.time?' · '+esc(ev.time):''}</span>`+(a.track?`<span class="sub3">${esc(a.track)}</span>`:'')+`</button>`;
@@ -604,10 +655,10 @@ function buildPrintHtml(){
       const key=`${yy}-${pad(mm)}-${pad(d)}`, w=(sw+d-1)%7;
       const dayEv=byDay[key]||[]; const grp={}; dayEv.forEach(ev=>(grp[ev.type] ||= []).push(ev));
       const list=Object.entries(grp).map(([ty,arr])=> arr.length>4
-        ? `<div class="e g" style="border-color:${COL[ty]}"><b style="color:${COL[ty]}">${TMAP[ty].tag} ${arr.length}건</b> ${arr.map(ev=>ev.cxl?`<s>${esc(ev.a.name+' '+shortU(ev.a.univ))}</s>`:esc(ev.a.name+' '+shortU(ev.a.univ)+resTxt(ev))+(ev.unc?' <u>미정</u>':'')).join(' · ')}</div>`
+        ? `<div class="e g" style="border-color:${COL[ty]}"><b style="color:${COL[ty]}">${TMAP[ty].tag} ${arr.length}건</b> ${arr.map(ev=>ev.cxl?`<s>${esc(ev.a.name+' '+shortU(ev.a.univ))}</s>`:prRes(ev,esc(ev.a.name+' '+shortU(ev.a.univ)+resTxt(ev)))+(ev.unc?' <u>미정</u>':'')).join(' · ')}</div>`
         : arr.map(ev=>{const a=ev.a,t=TMAP[ev.type];
         if(ev.cxl) return `<div class="e" style="border-color:#bbb;color:#999"><s><b>${t.tag}</b> ${esc(a.name)} ${esc(shortU(a.univ))}</s> [1차불합]<br><small><s>${esc(a.major||'')}</s></small></div>`;
-        return `<div class="e" style="border-color:${COL[ev.type]}"><b style="color:${COL[ev.type]}">${t.tag}</b> ${esc(a.name)} ${esc(shortU(a.univ))}${ev.unc?' <u>미정</u>':''}${esc(resTxt(ev))}<br><small>${esc(a.major||'')}${ev.time?' · '+esc(ev.time):''}${a.track?' · '+esc(a.track):''}</small></div>`;}).join('')).join('');
+        return `<div class="e${evCls(ev)}" style="border-color:${COL[ev.type]}"><b style="color:${COL[ev.type]}">${t.tag}</b> ${esc(a.name)} ${esc(shortU(a.univ))}${ev.unc?' <u>미정</u>':''}${prRes(ev,esc(resTxt(ev)))}<br><small>${esc(a.major||'')}${ev.time?' · '+esc(ev.time):''}${a.track?' · '+esc(a.track):''}</small></div>`;}).join('')).join('');
       cells.push(`<td class="${w===0?'sun':w===6?'sat':''}${key===TODAY?' today':''}"><div class="n">${d}</div>${list}</td>`);
     }
     while(cells.length%7) cells.push('<td class="pad"></td>');
@@ -630,6 +681,12 @@ td.pad{background:#f3f2ee}td.today{background:#fff6d6}
 .sun,.sun .n{color:#d0473a}.sat,.sat .n{color:#3b6fc4}
 .n{font-weight:700;font-size:9pt;margin-bottom:1px}
 .e{border-left:2.5px solid;padding-left:3px;margin-bottom:2px;color:#1d1c1a;break-inside:avoid}
+.e.won{background:#fff176}
+.e.won.addw{background:#bfe3ff}
+.gw{background:#fff176;font-weight:700}.gw.gwa{background:#aeefd3}.gw.gwb{background:#bfe3ff}
+.e.r1w{background:#aeefd3}
+.e.won,.e.r1w{font-weight:700}
+.gwl{color:#8a5a00;font-weight:800}
 .e small{color:#555;font-size:6.8pt}.e u{color:#8a5a00;text-decoration:none;font-weight:700;background:#fdf0d5;padding:0 2px}
 .tip{font-size:9pt;color:#555;margin:0 0 3mm}@media print{.tip{display:none}}
 </style></head><body>
@@ -649,7 +706,7 @@ function openDay(key){
   const list = filteredEvents().filter(e=>e.date===key);
   const dlg=document.getElementById('dayDlg');
   dlg.innerHTML = `<div class="dhead"><div><h3>${fmtD(key)} 일정</h3><p>${list.length}건${state.stu?' · 선택한 학생만':''}</p></div><button class="x" data-close aria-label="닫기">×</button></div>
-  <div class="dbody"><div>${list.length? list.map(ev=>{const a=ev.a,t=TMAP[ev.type];return `<div class="dayitem t-${ev.type}${ev.cxl?' cxl':''}" data-id="${a.id}">
+  <div class="dbody"><div>${list.length? list.map(ev=>{const a=ev.a,t=TMAP[ev.type];return `<div class="dayitem t-${ev.type}${ev.cxl?' cxl':''}${evCls(ev)}" data-id="${a.id}">
     <div><div class="t"><span style="color:var(--c)">${t.label}</span> · <span class="nm">${esc(a.name)} · ${esc(a.univ)} ${esc(a.major||'')}</span>${ev.unc?'<span class="flag unc">미정</span>':''}${ev.cxl?'<span class="flag bad">1차 불합격 · 응시 안 함</span>':resFlags(a,ev.key)}${(ev.key==='first'||ev.key==='final')&&a.eno?`<span class="eno">수험번호 <b>${esc(a.eno)}</b></span>`:''}</div>
     <div class="d">${esc(a.track||'')}${ev.time?' · <b>'+esc(ev.time)+'</b>':''}${ev.unc&&ev.s.raw?' · 원자료 '+esc(ev.s.raw):''}</div>
     ${a.csat||a.method?`<div class="d">수능최저: ${esc(a.csat||'없음')}${a.method?' · '+esc(a.method.replace(/\n/g,' / ')):''}</div>`:''}</div>
@@ -822,8 +879,8 @@ function renderRes(){
   const body = rows.map(a=>{ const v=rowVals(a); const nw=a.sk!==prev; prev=a.sk;
     const rc = x => x==='합격'?'ok':x==='추가합격'?'add':x==='불합격'?'bad':'';
     const dc = k => `<td class="num">${v._unc[k]?`<span class="unc">${esc(v[k])} (미정)</span>`:esc(v[k])}</td>`;
-    return `<tr data-id="${a.id}" class="${nw?'newstu':''}"><td class="num">${esc(v.sid)}</td><td>${esc(v.name)}</td><td>${esc(v.univ)}</td><td class="tw">${esc(v.track)}</td><td class="tw">${esc(v.major)}</td><td class="num">${esc(v.eno)}</td>
-      <td class="res ${rc(v.r1)}">${esc(v.r1)}</td><td class="res ${rc(v.fin)}">${esc(v.fin)}</td><td class="num">${esc(v.wait)}</td><td class="tw">${esc(v.memo)}</td>
+    return `<tr data-id="${a.id}" class="${nw?'newstu':''}${wonCls(a)}"><td class="num">${esc(v.sid)}</td><td>${esc(v.name)}</td><td>${esc(v.univ)}</td><td class="tw">${esc(v.track)}</td><td class="tw">${esc(v.major)}</td><td class="num">${esc(v.eno)}</td>
+      <td class="res ${rc(v.r1)}">${esc(v.r1)}</td><td class="res ${rc(v.fin)}">${esc(v.fin)}</td><td class="num${v.wait&&v.fin==='불합격'?' wlc':''}">${esc(v.wait)}</td><td class="tw">${esc(v.memo)}</td>
       <td>${esc(v.kind)}</td>${dc('exam')}${dc('first')}${dc('final')}<td class="tw">${esc(v.csat)}</td></tr>`;}).join('');
   document.getElementById('restable').innerHTML = `<thead><tr>${RCOLS.map(c=>`<th>${c[0]}</th>`).join('')}</tr></thead><tbody>${body || `<tr><td colspan="${RCOLS.length}" class="empty-note">조건에 맞는 지원 내역이 없습니다.</td></tr>`}</tbody>`;
 }
@@ -877,7 +934,7 @@ function renderStu(){
       const pill=(k,s2,cxl)=>!s2?'':`<span class="pill t-${k}${s2.unc&&!cxl?' unc':''}${s2.date<TODAY?' past':''}${cxl?' cxl':''}"><span class="k">${TMAP[k].tag}</span>${fmtD(s2.date)}${s2.end?'~'+fmtD(s2.end):''}${s2.unc&&!cxl?' 미정':''}</span>`;
       const jcHint = a.jc && !e.exam && REFS[a.uk] && REFS[a.uk].jc && (REFS[a.uk].jc.iv||REFS[a.uk].jc.pr) ? '<span class="pill" style="border-style:dashed">면접·실기 여부 확인</span>' : '';
       const noDate = !e.first && !e.exam && !e.final ? '<span class="pill" style="border-style:dashed">날짜 직접 입력 필요</span>' : '';
-      return `<div class="app" data-id="${a.id}"><div><div class="u">${esc(a.univ)}${a.eno?`<span class="eno">수험번호 <b>${esc(a.eno)}</b></span>`:''}</div><div class="m">${esc(a.major||'')} · ${esc(a.track||'')}</div></div>
+      return `<div class="app${wonCls(a)}" data-id="${a.id}"><div><div class="u">${esc(a.univ)}${a.eno?`<span class="eno">수험번호 <b>${esc(a.eno)}</b></span>`:''}</div><div class="m">${esc(a.major||'')} · ${esc(a.track||'')}</div></div>
         <div class="tl">${pill('first',e.first)}${e.exam?pill(e.exam.type,e.exam,r1bad):''}${r1bad?'':pill('final',e.final)}${jcHint}${noDate}</div>
         <div class="res-cell">${resFlags(a,'first')}${resFlags(a,'final')||'<span class="flag" style="background:var(--sunk);color:var(--muted)">발표 대기</span>'}</div></div>`;}).join('')}</div></div>`;
 }
@@ -885,7 +942,69 @@ document.getElementById('stulist').addEventListener('click',e=>{const b=e.target
 document.getElementById('stucard').addEventListener('click',e=>{const b=e.target.closest('[data-id]'); if(b) openApp(b.dataset.id);});
 document.getElementById('stuQ').addEventListener('input',e=>{state.stuQ=e.target.value; renderStu();});
 
-function renderAll(){ renderCal(); renderRes(); renderStu(); }
+/* ---------- 결과 조회: 대학·반·1단계·최종 결과로 전체 검색 ---------- */
+const banOf = a => { const s=String(a.sid||''); return /^\d{5,}$/.test(s) ? +s.slice(-4,-2) : 0; };
+const numOf = a => { const s=String(a.sid||''); return /^\d{5,}$/.test(s) ? +s.slice(-2) : (a.no||0); };
+const lk = { univ:'', ban:'', r1:'', fin:'', q:'', sort:'univ' };
+(function initLook(){
+  const univs=[...new Set(APPS.map(a=>a.univ).filter(Boolean))].sort((x,y)=>x.localeCompare(y,'ko'));
+  document.getElementById('lkUnivList').innerHTML = univs.map(u=>`<option value="${esc(u)}">`).join('');
+  const bans=[...new Set(APPS.map(banOf).filter(Boolean))].sort((x,y)=>x-y);
+  document.getElementById('lkBan').innerHTML = '<option value="">전체</option>'+bans.map(b=>`<option value="${b}">${b}반</option>`).join('');
+})();
+function lookRows(){
+  const uq=lk.univ.trim(), q=lk.q.trim();
+  const rows = APPS.filter(a=>{
+    const o=OV[a.id]||{}, e=eff(a);
+    if(uq && !(a.univ||'').includes(uq) && !(a.uk||'').includes(uq)) return false;
+    if(lk.ban && banOf(a)!==+lk.ban) return false;
+    if(q && !((a.name||'').includes(q)||(a.major||'').includes(q)||(a.eno||'').includes(q)||(a.track||'').includes(q))) return false;
+    if(lk.r1==='ok' && o.r1!=='합격') return false;
+    if(lk.r1==='bad' && o.r1!=='불합격') return false;
+    if(lk.r1==='wait' && !(e.first && !o.r1)) return false;
+    if(lk.r1==='none' && e.first) return false;
+    if(lk.fin==='won' && !(o.fin==='합격'||o.fin==='추가합격')) return false;
+    if(lk.fin==='first' && o.fin!=='합격') return false;
+    if(lk.fin==='add' && o.fin!=='추가합격') return false;
+    if(lk.fin==='wl' && !(o.fin==='불합격'&&o.wait)) return false;
+    if(lk.fin==='bad' && !(o.fin==='불합격'&&!o.wait)) return false;
+    if(lk.fin==='badall' && !(o.fin==='불합격'||o.r1==='불합격')) return false;
+    if(lk.fin==='pend' && (o.fin || o.r1==='불합격')) return false;
+    return true;
+  });
+  const byStu=(x,y)=>banOf(x)-banOf(y)||numOf(x)-numOf(y);
+  const byUniv=(x,y)=>(x.univ||'').localeCompare(y.univ||'','ko');
+  const fd=a=>{const f=eff(a).final; return f?f.date:'9999';};
+  rows.sort(lk.sort==='stu' ? (x,y)=>byStu(x,y)||byUniv(x,y) : lk.sort==='date' ? (x,y)=>(fd(x)<fd(y)?-1:fd(x)>fd(y)?1:0)||byUniv(x,y)||byStu(x,y) : (x,y)=>byUniv(x,y)||byStu(x,y));
+  return rows;
+}
+function renderLook(){
+  const rows=lookRows();
+  const c={r1:0,ok:0,add:0,wl:0,bad:0,pend:0};
+  rows.forEach(a=>{const o=OV[a.id]||{}; if(o.r1==='합격')c.r1++; if(o.fin==='합격')c.ok++; else if(o.fin==='추가합격')c.add++; else if(o.fin==='불합격'){ if(o.wait) c.wl++; else c.bad++; } else if(o.r1==='불합격') c.bad++; else c.pend++;});
+  const stuCnt=new Set(rows.map(a=>a.sk)).size;
+  document.getElementById('lkSum').innerHTML = [
+    [rows.length,`지원 (${stuCnt}명)`],[c.r1,'1차 합격'],[c.ok,'최초합격'],[c.add,'추가합격'],[c.wl,'예비 대기'],[c.bad,'불합격'],[c.pend,'발표 대기']
+  ].map(([n,l])=>`<div class="stat"><b>${n}</b><span>${l}</span></div>`).join('');
+  const on=[lk.univ&&`대학 「${lk.univ}」`, lk.ban&&`${lk.ban}반`, lk.r1&&document.querySelector(`#lkR1 option[value="${lk.r1}"]`).textContent, lk.fin&&document.querySelector(`#lkFin option[value="${lk.fin}"]`).textContent, lk.q&&`「${lk.q}」`].filter(Boolean);
+  document.getElementById('lkCount').textContent = on.length ? `조건: ${on.join(' · ')} — ${rows.length}건` : `전체 ${rows.length}건 · 줄을 누르면 결과를 입력·수정할 수 있습니다`;
+  const rc=x=>x==='합격'?'ok':x==='추가합격'?'add':x==='불합격'?'bad':'';
+  const body=rows.map(a=>{const o=OV[a.id]||{}, e=eff(a);
+    const r1=o.r1 ? `<td class="res ${rc(o.r1)}">${esc(o.r1)}</td>` : `<td class="res lkmuted">${e.first?'대기':'—'}</td>`;
+    const fin=o.fin ? `<td class="res ${rc(o.fin)}">${esc(o.fin)}</td>` : `<td class="res lkmuted">${o.r1==='불합격'?'—':'대기'}</td>`;
+    const wl=(o.fin==='추가합격'||o.fin==='불합격')&&o.wait ? `<td class="num${o.fin==='불합격'?' wlc':''}">${esc(o.wait)}</td>` : '<td class="num"></td>';
+    const ds=s=>s?s.date.slice(5).replace('-','.')+(s.time?' '+s.time:''):'';
+    const cls=(wonCls(a)||(o.r1==='합격'?' r1row':'')).trim();
+    return `<tr data-id="${a.id}" class="${cls}"><td class="num">${banOf(a)||''}</td><td class="num">${numOf(a)||''}</td><td><b>${esc(a.name)}</b></td><td>${esc(a.univ)}</td><td class="tw">${esc(a.major||'')}</td><td class="tw">${esc(a.track||'')}</td>${r1}${fin}${wl}<td class="num">${ds(e.first)}</td><td class="num">${ds(e.final)}</td><td class="tw">${esc(o.memo||'')}</td></tr>`;}).join('');
+  const H=['반','번호','이름','대학','모집단위','전형명','1단계','최종','예비','1단계 발표','최종 발표','비고'];
+  document.getElementById('lkTable').innerHTML = `<thead><tr>${H.map(h=>`<th>${h}</th>`).join('')}</tr></thead><tbody>${body||`<tr><td colspan="${H.length}" class="empty-note">조건에 맞는 지원 내역이 없습니다.</td></tr>`}</tbody>`;
+}
+[['lkUniv','univ','input'],['lkQ','q','input'],['lkBan','ban','change'],['lkR1','r1','change'],['lkFin','fin','change'],['lkSort','sort','change']].forEach(([id,k,ev])=>
+  document.getElementById(id).addEventListener(ev,e=>{lk[k]=e.target.value; renderLook();}));
+document.getElementById('lkReset').addEventListener('click',()=>{ Object.assign(lk,{univ:'',ban:'',r1:'',fin:'',q:''}); ['lkUniv','lkQ','lkBan','lkR1','lkFin'].forEach(id=>document.getElementById(id).value=''); renderLook(); });
+document.getElementById('lkTable').addEventListener('click',e=>{ const tr=e.target.closest('tr[data-id]'); if(tr) openApp(tr.dataset.id); });
+
+function renderAll(){ renderCal(); renderRes(); renderStu(); renderLook(); }
 
 /* ---------- 배경색 ---------- */
 function setBg(k){
