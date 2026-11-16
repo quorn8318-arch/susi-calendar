@@ -300,7 +300,7 @@ textarea{width:100%;min-height:56px;resize:vertical}
       <datalist id="lkUnivList"></datalist>
       <label class="sel">반 <select id="lkBan"></select></label>
       <label class="sel">1단계 <select id="lkR1">
-        <option value="">전체</option><option value="ok">1차 합격</option><option value="bad">1차 불합격</option><option value="wait">1차 발표 대기</option><option value="none">1단계 없는 전형</option></select></label>
+        <option value="">전체</option><option value="okonly">1차 합격만(최종 발표 전)</option><option value="ok">1차 합격 전체</option><option value="bad">1차 불합격</option><option value="wait">1차 발표 대기</option><option value="none">1단계 없는 전형</option></select></label>
       <label class="sel">최종 <select id="lkFin">
         <option value="">전체</option><option value="won">최종합격</option><option value="wl">예비합격(예비번호 받은 불합격)</option>
         <option value="bad">불합격(예비번호 없음)</option><option value="badall">불합격 전체(예비합격 포함)</option><option value="pend">발표 대기</option></select></label>
@@ -961,6 +961,7 @@ function lookRows(){
     if(lk.ban && banOf(a)!==+lk.ban) return false;
     if(q && !((a.name||'').includes(q)||(a.major||'').includes(q)||(a.eno||'').includes(q)||(a.track||'').includes(q))) return false;
     if(lk.r1==='ok' && o.r1!=='합격') return false;
+    if(lk.r1==='okonly' && !(o.r1==='합격' && !o.fin)) return false;
     if(lk.r1==='bad' && o.r1!=='불합격') return false;
     if(lk.r1==='wait' && !(e.first && !o.r1)) return false;
     if(lk.r1==='none' && e.first) return false;
