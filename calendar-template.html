@@ -789,7 +789,7 @@ function renderAppDlg(){
     <div class="sec"><h4>결과</h4>
       ${hasFirst?`<div class="resrow"><span class="rl">1단계</span>${seg('r1',[['합격','1차 합격','ok'],['불합격','1차 불합격','bad'],['','미정','none']])}</div>`:''}
       <div class="resrow"><span class="rl">최종</span>${seg('fin',[['합격','최종합격','ok'],['불합격','불합격','bad'],['','미정','none']])}
-        <span class="waitbox" ${d.fin==='불합격'?'':'hidden'}><label for="waitNo">예비번호(받았으면)</label><input type="number" id="waitNo" min="1" inputmode="numeric" value="${esc(d.wait||'')}" placeholder="예: 12"></span></div>
+        <span class="waitbox" ${d.fin==='불합격'?'':'hidden'}><label for="waitNo">예비번호</label><input type="number" id="waitNo" min="1" inputmode="numeric" value="${esc(d.wait||'')}" placeholder="예: 12"></span></div>
       <label for="memo" style="display:block;font-size:13px;color:var(--muted);margin:6px 0 4px">비고</label>
       <textarea id="memo" placeholder="등록 여부, 면접 시간, 고사장 등">${esc(d.memo||'')}</textarea>
     </div>
